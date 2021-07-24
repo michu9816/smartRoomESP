@@ -1,13 +1,13 @@
-extern ESP8266WebServer server;
+extern AsyncWebServer server;
 
 void httpFadeIn(){
   fadeIn();
-  server.send(200, "text/plain", "włączono");
+//   server.send(200, "text/plain", "włączono");
 }
 
 void httpFadeOut(){
   fadeOut();
-  server.send(200, "text/plain", "wyłączono");
+//   server.send(200, "text/plain", "wyłączono");
 }
 
 void fadeOut(){

@@ -3,15 +3,20 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
-#include <Hash.h>
-#include <ESP8266WebServer.h>
+// #include <Hash.h>
+// #include <ESP8266WebServer.h>
+#include <ESPAsyncWebServer.h>
 //#include <ArduinoOTA.h>
 #include <NTPClient.h>
 #include <ArduinoJson.h>
 #include <SPI.h>
-#include <WiFiManager.h> // https://github.com/tzapu/WiFiManager
-#include <ElegantOTA.h>
+#include <ESPAsyncWiFiManager.h> // https://github.com/tzapu/WiFiManager
+#include <AsyncElegantOTA.h>
 #include "Dimmer.h"
+
+extern AsyncWebServer server;
+
+DNSServer dns;
 
 // PRZYPISANIE MIEJSC W PAMIĘCI DLA DANYCH
 
@@ -145,13 +150,14 @@ void setup() {
 
   WiFi.mode(WIFI_STA);
   
-  WiFiManager wm;
+  AsyncWiFiManager wm(&server,&dns);
+  // WiFiManager wm;
 
   bool res;
 
   // STATYCZNE IP
 //  wm.setSTAStaticIPConfig(IPAddress(192,168,0,170), IPAddress(192,168,0,1), IPAddress(255,255,255,0)); // KKK
- wm.setSTAStaticIPConfig(IPAddress(192,168,8,41), IPAddress(192,168,8,1), IPAddress(255,255,255,0)); // MMM
+ wm.setSTAStaticIPConfig(IPAddress(192,168,8,42), IPAddress(192,168,8,1), IPAddress(255,255,255,0)); // MMM
 
   res = wm.autoConnect("NikThinq_LED",""); // password protected ap
 
@@ -175,12 +181,12 @@ void setup() {
   initializeWebsocket();
   EEPROMInitialize();
 
-  loadEPROMValues();
+  // loadEPROMValues();
 }
 
 void loop() {
-  websocketHandler();
-  webServerHandler();
+  // websocketHandler();
+  // webServerHandler();
   csgoHandle();
   offTimerHandler();
   if(millis() > lastRequest + (secDelay * 1000) && !useCSData){

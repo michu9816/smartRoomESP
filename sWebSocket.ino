@@ -1,41 +1,50 @@
-#include <WebSocketsServer.h>
+// #include <WebSocketsServer.h>
 
 // WEBSOCKET
-WebSocketsServer webSocket = WebSocketsServer(8080);
+// WebSocketsServer webSocket = WebSocketsServer(8080);
+
+extern String state;
+AsyncWebSocket webSocket("/ws");
 
 void initializeWebsocket(){
-    webSocket.begin();
-    webSocket.onEvent(webSocketEvent);
+    // webSocket.begin();
+    // webSocket.onEvent(webSocketEvent);
+    webSocket.onEvent(onEvent);
+    
 }
 
-void websocketHandler(){
-    webSocket.loop();
-}
+// void websocketHandler(){
+//     webSocket.loop();
+// }
 
 
 void textAll(String data){
-  webSocket.broadcastTXT(data);
+  webSocket.textAll(data);
 }
 
-void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
+void onEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *payload, size_t length){
+// void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
 
     switch(type) {
-        case WStype_DISCONNECTED:
-            Serial.printf("[%u] Disconnected!\n", num);
+        case WS_EVT_DISCONNECT:
+            Serial.printf("[] Disconnected!\n");
             break;
-        case WStype_CONNECTED:
+        case WS_EVT_CONNECT:
             {
-                IPAddress ip = webSocket.remoteIP(num);
-                Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
+                // IPAddress ip = webSocket.remoteIP(num);
+                // Serial.printf("[] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
         
               // send message to client
               generateStateString();
-              sendStateToClients();
+              client->text(state);
+            //   sendStateToClients();
             }
             break;
-        case WStype_TEXT:
-            Serial.printf("[%u] get Text: %s\n", num, payload);
-
+        case WS_EVT_DATA:
+            // Serial.printf("[] get Text: %s\n", (char*)payload);
+            // Serial.print((char*)payload);
+            AwsFrameInfo * info = (AwsFrameInfo*)arg;
+            Serial.printf("ws[%s][%u] %s-message[%llu]: ", server->url(), client->id(), (info->opcode == WS_TEXT)?"text":"binary", info->length);
             if(payload[0] == '#') {
                 // we get RGB data
 
@@ -107,13 +116,6 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
                 offTimerSet(scheduleOff,scheduleMinutes);
               }
             }
-            break;
-        case WStype_BIN:
-            Serial.printf("[%u] get binary length: %u\n", num, length);
-            hexdump(payload, length);
-
-            // send message to client
-            // webSocket.sendBIN(num, payload, length);
             break;
     }
 
