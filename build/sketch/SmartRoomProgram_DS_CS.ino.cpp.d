@@ -199,6 +199,7 @@ c:\Users\Misiek\Desktop\SRProgram\SmartRoomProgram_DS_CS\build\sketch\SmartRoomP
  C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4\cores\esp8266/flash_hal.h \
  C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4\cores\esp8266/StreamString.h \
  C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4\libraries\ESP8266HTTPUpdateServer\src/ESP8266HTTPUpdateServer.h \
+ c:\Users\Misiek\Desktop\SRProgram\SmartRoomProgram_DS_CS\build\sketch\Dimmer.h \
  C:\Users\Misiek\Documents\Arduino\libraries\Blynk\src/BlynkSimpleEsp8266.h \
  C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4/tools/sdk/include/version.h \
  C:\Users\Misiek\Documents\Arduino\libraries\Blynk\src/BlynkApiArduino.h \

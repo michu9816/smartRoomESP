@@ -38,32 +38,32 @@ void csgoHandler(String msg){
             String newMvps = postData["player"]["match_stats"];
             int newMvp = newMvps.toInt();
             if(roundPhase == "live"){
-                changeColor(70,70,70);
+                // changeColor(70,70,70);
                 Serial.println("Runda LIVE!");
             }else if(roundPhase == "freezetime"){
                 mvp = newMvp;
                 String playerTeam = postData["player"]["team"];
                 if(playerTeam=="CT"){
-                    changeColor(6,48,48);
+                    // changeColor(6,48,48);
                 }else if(playerTeam=="T"){
-                    changeColor(48,6,6);
+                    // changeColor(48,6,6);
                 }
               Serial.println("Oczekiwanie na start rundy");
             }else if(roundPhase == "over"){
                 String winningTeam = postData["round"]["win_team"];
                 if(newMvp > mvp){
-                    changeColor(48,48,0);
+                    // changeColor(48,48,0);
                 }else if(winningTeam=="CT"){
-                    changeColor(0,32,64);
+                    // changeColor(0,32,64);
                 }else if(winningTeam=="T"){
-                    changeColor(48,0,0);
+                    // changeColor(48,0,0);
                 }
             }
         }
 }
 
 void changeColor(int red, int green, int blue){
-    transitionToColor(red,green,blue,false);
+    // transitionToColor(red,green,blue,false);
     csgoLastBlue = blue;
     csgoLastGreen = green;
     csgoLastRed = red;
@@ -81,7 +81,7 @@ void csgoHandle(){
             if(blinkedRed && (lastBlinkTime > millis() + 250)){
                 loadColorBeforeCS();
             }else if(lastBlinkTime > millis() + 750){
-                setColor(75,0,0);
+                // setColor(75,0,0);
                 lastBlinkTime = millis();
             }
         }
@@ -90,7 +90,7 @@ void csgoHandle(){
 
 
 void loadColorBeforeCS(){
-  transitionToColor(savedRed,savedGreen,savedBlue);
+//   transitionToColor(savedRed,savedGreen,savedBlue);
 }
 
 void saveColorBeforeCS(){

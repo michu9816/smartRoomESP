@@ -14,6 +14,7 @@
 #include <EEPROM.h>
 #include <WiFiManager.h> // https://github.com/tzapu/WiFiManager
 #include <ElegantOTA.h>
+#include "Dimmer.h"
 
 // PRZYPISANIE MIEJSC W PAMIĘCI DLA DANYCH
 
@@ -25,7 +26,6 @@ int autoEPROM = 4;
 int ledsOnEPROM = 5;
 int checkLightSensorEPROM = 6;
 
-
 // DEFINICJE PINÓW
 
 #define LED_RED     15
@@ -36,6 +36,13 @@ int checkLightSensorEPROM = 6;
 
 int motionSensorPin = 15;
 int lightSensorSensorPin = 4;
+
+// DEFINICJE KOLORÓW
+
+Dimmer red(15);
+Dimmer green(13);
+Dimmer blue(12);
+
 
 // USTAWIENIA ODPYTYWANIA
 
@@ -66,25 +73,17 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
 
 // USTAWIENIA LEDÓW
 
-long transitionDuration = 1500;
-long scheduledOffLastRequest = 0;
-
 int lastRed;
 int lastGreen;
 int lastBlue;
 
-float fadeInDuration = 0.7;
-float fadeOutDuration = 1;
-
 int turnOffDelay = 30;
-int scheduledOffMinutes = 0;
 
 bool autoMode = false;
 bool checkLightSensorInAutoMode = true;
 bool ledsOn = false;
 bool isFadingOut = false;
 bool isFadingIn = false;
-bool scheduledOff = false;
 
 int turnOnHour = 6;
 int turnOnMinute = 25;
@@ -116,47 +115,35 @@ long lastDHTRequest = 0;
 int secDelay = 3;
 int secDHTDelay = 20;
 
-String state = "";
-String oldState = "";
 
 // FUNKCJE DLA LEDOW
 
 
-#line 124 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
+#line 121 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
 void httpFadeIn();
-#line 129 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
+#line 126 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
 void httpFadeOut();
-#line 134 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
+#line 131 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
 void fadeOut();
-#line 140 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
+#line 137 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
 void fadeIn();
-#line 146 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
+#line 143 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
+void setColor(int redColor, int greenColor, int blueColor);
+#line 149 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
 void httpLedStatus();
-#line 151 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
-void transitionToColor(int r,int g,int b);
-#line 155 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
-void transitionToColor(int r,int g,int b,bool saveNewColor);
-#line 290 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
-void setColor(int r, int g, int b);
-#line 296 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
-void setColorStronger(int r, int g, int b);
-#line 302 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
+#line 154 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length);
-#line 412 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
-void generateStateString();
-#line 481 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
-void sendStateToClients();
-#line 491 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
+#line 257 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
 void textAll(String data);
-#line 495 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
+#line 261 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
 bool isScheduledDay();
-#line 504 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
+#line 270 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
 void checkIncommingRequest();
-#line 514 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
+#line 280 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
 void setup();
-#line 586 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
+#line 350 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
 void loop();
-#line 659 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
+#line 413 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
 void loadEPROMValues();
 #line 7 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sBlynk.ino"
 void initializeBlynk();
@@ -174,6 +161,14 @@ void csgoHandle();
 void loadColorBeforeCS();
 #line 96 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sCSGO.ino"
 void saveColorBeforeCS();
+#line 5 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sOffTimer.ino"
+bool getOffTimerStatus();
+#line 9 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sOffTimer.ino"
+int getOffTimerMinutes();
+#line 13 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sOffTimer.ino"
+void offTimerSet(bool scheduleOff, int scheduleMinutes);
+#line 18 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sOffTimer.ino"
+void offTimerHandler();
 #line 16 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sSensors.ino"
 void initializeSensor();
 #line 20 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sSensors.ino"
@@ -182,7 +177,11 @@ float getHumidity();
 float getTemperature();
 #line 27 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sSensors.ino"
 void readTHSensor();
-#line 124 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
+#line 5 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sState.ino"
+void generateStateString();
+#line 82 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sState.ino"
+void sendStateToClients();
+#line 121 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino"
 void httpFadeIn(){
   fadeIn();
   server.send(200, "text/plain", "włączono");
@@ -194,171 +193,26 @@ void httpFadeOut(){
 }
 
 void fadeOut(){
-  transitionDuration = 5000;
-  isFadingOut = true;
-  transitionToColor(0,0,0);
+  red.fadeOut();
+  green.fadeOut();
+  blue.fadeOut();
 };
 
 void fadeIn(){
-  transitionDuration = 3000;
-  isFadingIn = true;
-  transitionToColor(lastRed,lastGreen,lastBlue);
+  red.fadeIn();
+  green.fadeIn();
+  blue.fadeIn();
+};
+
+void setColor(int redColor, int greenColor, int blueColor){
+  red.brightnessSet(redColor);
+  green.brightnessSet(greenColor);
+  blue.brightnessSet(blueColor);
 };
 
 void httpLedStatus(){
   String res = ledsOn ? "1" : "0";
   server.send(200, "text/plain", res);
-}
-
-void transitionToColor(int r,int g,int b){
-  transitionToColor(r,g,b,true);
-}
-
-void transitionToColor(int r,int g,int b,bool saveNewColor){
-
-  int valuesOnStart[3] = {lastRed,lastBlue,lastGreen};
-
-  int red = r;
-  int green = g;
-  int blue = b;
-
-  int newRed = lastRed;
-  int newGreen = lastGreen;
-  int newBlue = lastBlue;
-
-  if(isFadingIn || !ledsOn){
-    newRed = 0;
-    newGreen = 0;
-    newBlue = 0;
-  }
-
-  if(r==newRed && g==newGreen && b==newBlue)
-    return;
-
-  String redDecision = red < newRed ? "decrease" : "increase";
-  String greenDecision = green < newGreen ? "decrease" : "increase";
-  String blueDecision = blue < newBlue ? "decrease" : "increase";
-
-  if(isFadingIn){
-    redDecision = "increase";
-    greenDecision = "increase";
-    blueDecision = "increase";
-  }else if(isFadingOut){
-    redDecision = "decrease";
-    greenDecision = "decrease";
-    blueDecision = "decrease";
-  }
-
-  int blueDiff = blue - newBlue;
-  if(blueDiff<0)
-    blueDiff = -blueDiff;
-  int redDiff = red - newRed;
-  if(redDiff<0)
-    redDiff = -redDiff;
-  int greenDiff = green - newGreen;
-  if(greenDiff<0)
-    greenDiff = -greenDiff;
-
-  int maxDiff = blueDiff;
-  if(redDiff>maxDiff)
-    maxDiff = redDiff;  
-  if(greenDiff>maxDiff)
-    maxDiff = greenDiff;  
-
-  if(maxDiff<1)
-    maxDiff = 1;
-  if(isFadingIn){
-    maxDiff = lastRed ? lastRed : (lastBlue ? lastBlue : lastGreen);
-  }
-  int transitionDelay = transitionDuration / maxDiff;
-  if(!transitionDelay)
-    transitionDelay = 1;
-
-  int redStep = 1;
-  int greenStep = 1;
-  int blueStep = 1;
-
-  bool finishLoop = false;
-  while(!finishLoop){
-
-    // CZERWONY
-    if(redDecision=="increase"){
-      newRed += redStep;
-      if(red<newRed)
-        newRed = red;
-    }else{
-      newRed -= redStep;
-      if(newRed<red)
-        newRed = red;
-    }
-
-    // ZIELONY
-    if(greenDecision=="increase"){
-      newGreen += greenStep;
-      if(green<newGreen)
-        newGreen = green;
-    }else{
-      newGreen -= greenStep;
-      if(newGreen<green)
-        newGreen = green;
-    }
-
-    // NIEBIESKI
-    if(blueDecision=="increase"){
-      newBlue += blueStep;
-      if(blue<newBlue)
-        newBlue = blue;
-    }else{
-      newBlue -= blueStep;
-      if(newBlue<blue)
-        newBlue = blue;
-    }
-
-    setColorStronger(newRed,newGreen,newBlue);
-
-    if(red==newRed && blue==newBlue && green==newGreen)
-      finishLoop = true;
-    else
-      delay(transitionDelay);
-  }
-  
-  if(isFadingIn){
-    ledsOn = true;
-    EEPROM.write(ledsOnEPROM, 1);
-  }else if(isFadingOut){
-    ledsOn = false;
-    EEPROM.write(ledsOnEPROM, 0);
-  }
-
-  if(!isFadingOut || !saveNewColor){
-    ledsOn = true;
-    EEPROM.write(ledsOnEPROM, 1);
-    lastRed = newRed;
-    lastGreen = newGreen;
-    lastBlue = newBlue;
-    EEPROM.write(redEPROM,lastRed);
-    EEPROM.write(greenEPROM,lastGreen);
-    EEPROM.write(blueEPROM,lastBlue);
-  }
-  EEPROM.commit();
-
-  // USTAWIANIE DOMYŚLNYCH USTAWIEŃ
-  isFadingOut = false;
-  isFadingIn = false;
-  transitionDuration = 750;
-};
-
-
-void setColor(int r, int g, int b){
-  analogWrite(LED_RED,r*4);
-  analogWrite(LED_GREEN,g*4);
-  analogWrite(LED_BLUE,b*4);
-}
-
-void setColorStronger(int r, int g, int b){
-  analogWrite(LED_RED,r);
-  analogWrite(LED_GREEN,g);
-  analogWrite(LED_BLUE,b);
 }
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
@@ -374,7 +228,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
         
               // send message to client
               generateStateString();
-              webSocket.sendTXT(num, state);
+              sendStateToClients();
             }
             break;
         case WStype_TEXT:
@@ -385,13 +239,6 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
 
                 // decode rgb data
                 uint32_t rgb = (uint32_t) strtol((const char *) &payload[1], NULL, 16);
-                // lastRed = ((rgb >> 16) & 0xFF);
-                // lastGreen = ((rgb >> 8) & 0xFF);
-                // lastBlue = ((rgb >> 0) & 0xFF);
-
-                // EEPROM.write(redEPROM, lastRed);
-                // EEPROM.write(greenEPROM, lastGreen);
-                // EEPROM.write(blueEPROM, lastBlue);
 
                 Serial.print(lastRed);
                 Serial.print(",");
@@ -455,8 +302,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
 
                 bool scheduleOff = doc["confirmed"];
                 int scheduleMinutes = doc["minutes"];
-                scheduledOff = scheduleOff;
-                scheduledOffMinutes = scheduleMinutes;
+                offTimerSet(scheduleOff,scheduleMinutes);
               }
             }
             break;
@@ -471,84 +317,6 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
 
 }
 
-void generateStateString(){
-  String newState = "";
-  newState += "{\"dhtSensor\":{\"humidity\":";
-  newState += getHumidity();
-  newState += ",\"temperature\":";
-  newState += getTemperature();
-  newState += "},";
-  newState += "\"motionSensor\":";
-  newState += motion;
-  newState += ",";
-  newState += "\"lightSensor\":";
-  newState += lightSensor;
-  newState += ",";
-  newState += "\"ledsOn\":";
-  newState += ledsOn;
-  newState += ",";
-  newState += "\"autoMode\":";
-  newState += autoMode;
-  newState += ",";
-  newState += "\"light\":{";
-  newState += "\"turnOn\":";
-  newState += ledsOn;
-  newState += ",";
-  newState += "\"usingCSData\":";
-  newState += useCSData;
-  newState += ",";
-  newState += "\"checkLightAuto\":";
-  newState += checkLightSensorInAutoMode;
-  newState += ",";
-  newState += "\"turnOnTime\":\"";
-  newState += turnOnHour;
-  newState += ":";
-  newState += turnOnMinute;
-  newState += "\",";
-  newState += "\"turnOffTime\":\"";
-  newState += turnOffHour;
-  newState += ":";
-  newState += turnOffMinute;
-  newState += "\",";
-  newState += "\"scheduleOffConfirmed\":";
-  newState += scheduledOff;
-  newState += ",";
-  newState += "\"scheduleOffMinutes\":";
-  newState += scheduledOffMinutes;
-  newState += ",";
-  newState += "\"autoMode\":";
-  newState += autoMode;
-  newState += ",";
-  newState += "\"color\":\"";
-  newState += lastRed / 4;
-  newState += ",";
-  newState += lastGreen / 4;
-  newState += ",";
-  newState += lastBlue / 4;
-  newState += "\"";
-  newState += ",";
-  newState += "\"scheduledDays\":[";
-  for(int i = 0;i<7;i++){
-    newState += scheduledDays[i];
-    if(i!=6)
-      newState += ",";
-  }
-  newState += "]";
-  newState += "}";
-  newState += "}";
-
-  state = newState;
-}
-
-void sendStateToClients(){
-  generateStateString();
-  if(!oldState.equals(state)){
-    textAll(state);
-    oldState = state;
-  }
-
-  blynkWriteTH(getTemperature(), getHumidity());
-}
 
 void textAll(String data){
   webSocket.broadcastTXT(data);
@@ -577,7 +345,6 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Booting");
 
-
   // BLYNK
   if(useBlynk)
     initializeBlynk();
@@ -587,15 +354,17 @@ void setup() {
     readTHSensor();
   }
 
-  timeClient.begin();
-  
-  pinMode(LED_RED, OUTPUT);
-  pinMode(LED_GREEN, OUTPUT);
-  pinMode(LED_BLUE, OUTPUT);
+// PINY LED
+  digitalWrite(LED_RED, 0);
+  digitalWrite(LED_GREEN, 0);
+  digitalWrite(LED_BLUE, 0);
 
-  digitalWrite(LED_RED, 1);
-  digitalWrite(LED_GREEN, 1);
-  digitalWrite(LED_BLUE, 1);
+
+  timeClient.begin();
+
+  red.initialize();
+  green.initialize();
+  blue.initialize();
 
   pinMode(motionSensorPin, INPUT); 
 
@@ -635,10 +404,7 @@ void setup() {
 
   webSocket.begin();
   webSocket.onEvent(webSocketEvent);
-  // PINY LED
-  digitalWrite(LED_RED, 0);
-  digitalWrite(LED_GREEN, 0);
-  digitalWrite(LED_BLUE, 0);
+  
 
   EEPROM.begin(10);
 
@@ -649,21 +415,7 @@ void loop() {
   webSocket.loop();
   server.handleClient();
   csgoHandle();
-  if(scheduledOff){
-    if(scheduledOffLastRequest==0){
-      scheduledOffLastRequest=millis();
-    }
-    if(millis() > scheduledOffLastRequest + 60000){
-      scheduledOffMinutes -= 1;
-      scheduledOffLastRequest = millis();
-      if(scheduledOffMinutes == 0){
-        Serial.println("Wyłączanie ledów");
-        fadeOut();
-        scheduledOff = false;
-        scheduledOffLastRequest = 0;
-      }
-    }
-  }
+  offTimerHandler();
   if(millis() > lastRequest + (secDelay * 1000) && !useCSData){
     timeClient.update();
 
@@ -716,6 +468,10 @@ void loop() {
   if(useBlynk)
     blynkHandler();
   // ArduinoOTA.handle();
+
+  red.handler();
+  green.handler();
+  blue.handler();
 }
 
 void loadEPROMValues(){
@@ -792,32 +548,32 @@ void csgoHandler(String msg){
             String newMvps = postData["player"]["match_stats"];
             int newMvp = newMvps.toInt();
             if(roundPhase == "live"){
-                changeColor(70,70,70);
+                // changeColor(70,70,70);
                 Serial.println("Runda LIVE!");
             }else if(roundPhase == "freezetime"){
                 mvp = newMvp;
                 String playerTeam = postData["player"]["team"];
                 if(playerTeam=="CT"){
-                    changeColor(6,48,48);
+                    // changeColor(6,48,48);
                 }else if(playerTeam=="T"){
-                    changeColor(48,6,6);
+                    // changeColor(48,6,6);
                 }
               Serial.println("Oczekiwanie na start rundy");
             }else if(roundPhase == "over"){
                 String winningTeam = postData["round"]["win_team"];
                 if(newMvp > mvp){
-                    changeColor(48,48,0);
+                    // changeColor(48,48,0);
                 }else if(winningTeam=="CT"){
-                    changeColor(0,32,64);
+                    // changeColor(0,32,64);
                 }else if(winningTeam=="T"){
-                    changeColor(48,0,0);
+                    // changeColor(48,0,0);
                 }
             }
         }
 }
 
 void changeColor(int red, int green, int blue){
-    transitionToColor(red,green,blue,false);
+    // transitionToColor(red,green,blue,false);
     csgoLastBlue = blue;
     csgoLastGreen = green;
     csgoLastRed = red;
@@ -835,7 +591,7 @@ void csgoHandle(){
             if(blinkedRed && (lastBlinkTime > millis() + 250)){
                 loadColorBeforeCS();
             }else if(lastBlinkTime > millis() + 750){
-                setColor(75,0,0);
+                // setColor(75,0,0);
                 lastBlinkTime = millis();
             }
         }
@@ -844,13 +600,48 @@ void csgoHandle(){
 
 
 void loadColorBeforeCS(){
-  transitionToColor(savedRed,savedGreen,savedBlue);
+//   transitionToColor(savedRed,savedGreen,savedBlue);
 }
 
 void saveColorBeforeCS(){
   savedRed = lastRed;
   savedGreen = lastGreen;
   savedBlue = lastBlue;
+}
+#line 1 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sOffTimer.ino"
+long offTimerLastRequest = 0;
+int offTimerMinutes = 0;
+bool offTimer = false;
+
+bool getOffTimerStatus(){
+	return offTimer;
+}
+
+int getOffTimerMinutes(){
+	return offTimerMinutes;
+}
+
+void offTimerSet(bool scheduleOff, int scheduleMinutes){
+	offTimer = scheduleOff;
+    offTimerMinutes = scheduleMinutes;
+}
+
+void offTimerHandler(){
+	if(offTimer){
+		if(offTimerLastRequest==0){
+			offTimerLastRequest=millis();
+		}
+		if(millis() > offTimerLastRequest + 60000){
+			offTimerMinutes -= 1;
+			offTimerLastRequest = millis();
+			if(offTimerMinutes == 0){
+				Serial.println("Wyłączanie ledów");
+				fadeOut();
+				offTimer = false;
+				offTimerLastRequest = 0;
+			}
+		}
+	}
 }
 #line 1 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sSensors.ino"
 #include <DHT.h>
@@ -895,4 +686,95 @@ void readTHSensor(){
         temperature = 0;
       badReadness = 0;
     }
+}
+#line 1 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sState.ino"
+String state = "";
+String oldState = "";
+
+
+void generateStateString(){
+    bool ledsOn;
+  if(red.getBrightness() == 0 && green.getBrightness() == 0 && blue.getBrightness() == 0){
+    ledsOn = false;
+  }else{
+    ledsOn = true;
+  }
+
+  String newState = "";
+  newState += "{\"dhtSensor\":{\"humidity\":";
+  newState += getHumidity();
+  newState += ",\"temperature\":";
+  newState += getTemperature();
+  newState += "},";
+  newState += "\"motionSensor\":";
+  newState += motion;
+  newState += ",";
+  newState += "\"lightSensor\":";
+  newState += lightSensor;
+  newState += ",";
+  newState += "\"ledsOn\":";
+  newState += ledsOn;
+  newState += ",";
+  newState += "\"autoMode\":";
+  newState += autoMode;
+  newState += ",";
+  newState += "\"light\":{";
+  newState += "\"turnOn\":";
+  newState += ledsOn;
+  newState += ",";
+  newState += "\"usingCSData\":";
+  newState += useCSData;
+  newState += ",";
+  newState += "\"checkLightAuto\":";
+  newState += checkLightSensorInAutoMode;
+  newState += ",";
+  newState += "\"turnOnTime\":\"";
+  newState += turnOnHour;
+  newState += ":";
+  newState += turnOnMinute;
+  newState += "\",";
+  newState += "\"turnOffTime\":\"";
+  newState += turnOffHour;
+  newState += ":";
+  newState += turnOffMinute;
+  newState += "\",";
+  newState += "\"scheduleOffConfirmed\":";
+  newState += getOffTimerStatus();
+  newState += ",";
+  newState += "\"scheduleOffMinutes\":";
+  newState += getOffTimerMinutes();
+  newState += ",";
+  newState += "\"autoMode\":";
+  newState += autoMode;
+  newState += ",";
+  newState += "\"color\":\"";
+  newState += red.getLastBrightness();
+  newState += ",";
+  newState += green.getLastBrightness();
+  newState += ",";
+  newState += blue.getLastBrightness();
+  newState += "\"";
+  newState += ",";
+  newState += "\"scheduledDays\":[";
+  for(int i = 0;i<7;i++){
+    newState += scheduledDays[i];
+    if(i!=6)
+      newState += ",";
+  }
+  newState += "]";
+  newState += "}";
+  newState += "}";
+
+  state = newState;
+}
+
+
+void sendStateToClients(){
+  generateStateString();
+  if(!oldState.equals(state)){
+    textAll(state);
+    oldState = state;
+  }
+
+  blynkWriteTH(getTemperature(), getHumidity());
 }
