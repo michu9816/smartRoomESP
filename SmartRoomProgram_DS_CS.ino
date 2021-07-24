@@ -100,7 +100,7 @@ bool lightSensor = false;
 // USTAWIENIA CZESTOTLIWOSCI ODPYTYWANIA
 long lastRequest = 0;
 long lastDHTRequest = 0;
-int secDelay = 3;
+int secDelay = 15;
 int secDHTDelay = 20;
 
 
@@ -224,13 +224,13 @@ void loop() {
     }
 
     lastRequest = millis();
-    sendStateToClients();
+    refreshState();
   }
   
   if(millis() > lastDHTRequest + (secDHTDelay * 1000) && readTemperature){
     readTHSensor();
     lastDHTRequest = millis();
-    sendStateToClients();
+    refreshState();
   }
   if(useBlynk)
     blynkHandler();

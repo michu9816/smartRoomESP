@@ -165,8 +165,7 @@ c:\Users\Misiek\Desktop\SRProgram\SmartRoomProgram_DS_CS\build\sketch\SmartRoomP
  C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4/tools/sdk/libc/xtensa-lx106-elf/include/assert.h \
  C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4\cores\esp8266/AddrList.h \
  C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4\cores\esp8266/PolledTimeout.h \
- C:\Users\Misiek\Documents\Arduino\libraries\WebSockets\src/WebSocketsServer.h \
- C:\Users\Misiek\Documents\Arduino\libraries\WebSockets\src/WebSockets.h \
+ C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4\libraries\Hash\src/Hash.h \
  C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4\libraries\ESP8266WebServer\src/ESP8266WebServer.h \
  C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4\libraries\ESP8266WebServer\src/detail/mimetable.h \
  C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4\libraries\ESP8266WebServer\src/Uri.h \
@@ -181,13 +180,11 @@ c:\Users\Misiek\Desktop\SRProgram\SmartRoomProgram_DS_CS\build\sketch\SmartRoomP
  C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4\libraries\ESP8266WebServer\src/detail/mimetable.h \
  C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4\libraries\ESP8266WebServer\src/Uri.h \
  C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4\libraries\ESP8266WebServer\src/Parsing-impl.h \
- C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4\libraries\Hash\src/Hash.h \
  C:\Users\Misiek\Documents\Arduino\libraries\NTPClient/NTPClient.h \
  C:\Users\Misiek\Documents\Arduino\libraries\ArduinoJson\src/ArduinoJson.h \
  C:\Users\Misiek\Documents\Arduino\libraries\ArduinoJson\src/ArduinoJson.hpp \
  C:\Users\Misiek\Documents\Arduino\libraries\ArduinoJson\src/ArduinoJson/Configuration.hpp \
  C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4\libraries\SPI/SPI.h \
- C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4\libraries\EEPROM/EEPROM.h \
  C:\Users\Misiek\Documents\Arduino\libraries\WiFiManager/WiFiManager.h \
  C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4\libraries\DNSServer\src/DNSServer.h \
  C:\Users\Misiek\Documents\Arduino\libraries\WiFiManager/strings_en.h \
@@ -200,6 +197,8 @@ c:\Users\Misiek\Desktop\SRProgram\SmartRoomProgram_DS_CS\build\sketch\SmartRoomP
  C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4\cores\esp8266/StreamString.h \
  C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4\libraries\ESP8266HTTPUpdateServer\src/ESP8266HTTPUpdateServer.h \
  c:\Users\Misiek\Desktop\SRProgram\SmartRoomProgram_DS_CS\build\sketch\Dimmer.h \
+ C:\Users\Misiek\Documents\Arduino\libraries\WebSockets\src/WebSocketsServer.h \
+ C:\Users\Misiek\Documents\Arduino\libraries\WebSockets\src/WebSockets.h \
  C:\Users\Misiek\Documents\Arduino\libraries\Blynk\src/BlynkSimpleEsp8266.h \
  C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4/tools/sdk/include/version.h \
  C:\Users\Misiek\Documents\Arduino\libraries\Blynk\src/BlynkApiArduino.h \
@@ -226,4 +225,5 @@ c:\Users\Misiek\Desktop\SRProgram\SmartRoomProgram_DS_CS\build\sketch\SmartRoomP
  C:\Users\Misiek\Documents\Arduino\libraries\Blynk\src/WidgetTable.h \
  C:\Users\Misiek\Documents\Arduino\libraries\Blynk\src/WidgetGPS.h \
  C:\Users\Misiek\Documents\Arduino\libraries\Blynk\src/WidgetMap.h \
+ C:\Users\Misiek\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4\libraries\EEPROM/EEPROM.h \
  C:\Users\Misiek\Documents\Arduino\libraries\DHT_sensor_library/DHT.h

@@ -38,7 +38,7 @@ class Dimmer{
         long debounceTime = 50; 
         long lastDebounceTime; 
         long lastWebsocketRefresh = 0; 
-        long websocketRefreshDelay = 500;
+        long websocketRefreshDelay = 5000;
         bool buttonLastState = HIGH;
         bool buttonState = HIGH;
         bool buttonPressed = false;

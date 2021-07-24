@@ -1,6 +1,7 @@
 String state = "";
 String oldState = "";
 
+long lastStateGenerated = 0;
 
 void generateStateString(){
     bool ledsOn;
@@ -86,5 +87,17 @@ void sendStateToClients(){
     oldState = state;
   }
 
-  blynkWriteTH(getTemperature(), getHumidity());
+  if(useBlynk)
+    blynkWriteTH(getTemperature(), getHumidity());
+}
+
+void refreshState(){
+  lastStateGenerated = millis();
+}
+
+void stateHandler(){
+  if(lastStateGenerated != 0 && lastStateGenerated + 1000 > millis()){
+    lastStateGenerated = 0;
+    sendStateToClients();
+  }
 }

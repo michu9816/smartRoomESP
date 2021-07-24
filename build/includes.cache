@@ -21,18 +21,13 @@
   },
   {
     "Sourcefile": "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\build\\sketch\\SmartRoomProgram_DS_CS.ino.cpp",
-    "Include": "WebSocketsServer.h",
-    "Includepath": "C:\\Users\\Misiek\\Documents\\Arduino\\libraries\\WebSockets\\src"
+    "Include": "Hash.h",
+    "Includepath": "C:\\Users\\Misiek\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.7.4\\libraries\\Hash\\src"
   },
   {
     "Sourcefile": "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\build\\sketch\\SmartRoomProgram_DS_CS.ino.cpp",
     "Include": "ESP8266WebServer.h",
     "Includepath": "C:\\Users\\Misiek\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.7.4\\libraries\\ESP8266WebServer\\src"
-  },
-  {
-    "Sourcefile": "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\build\\sketch\\SmartRoomProgram_DS_CS.ino.cpp",
-    "Include": "Hash.h",
-    "Includepath": "C:\\Users\\Misiek\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.7.4\\libraries\\Hash\\src"
   },
   {
     "Sourcefile": "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\build\\sketch\\SmartRoomProgram_DS_CS.ino.cpp",
@@ -48,11 +43,6 @@
     "Sourcefile": "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\build\\sketch\\SmartRoomProgram_DS_CS.ino.cpp",
     "Include": "SPI.h",
     "Includepath": "C:\\Users\\Misiek\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.7.4\\libraries\\SPI"
-  },
-  {
-    "Sourcefile": "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\build\\sketch\\SmartRoomProgram_DS_CS.ino.cpp",
-    "Include": "EEPROM.h",
-    "Includepath": "C:\\Users\\Misiek\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.7.4\\libraries\\EEPROM"
   },
   {
     "Sourcefile": "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\build\\sketch\\SmartRoomProgram_DS_CS.ino.cpp",
@@ -76,8 +66,18 @@
   },
   {
     "Sourcefile": "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\build\\sketch\\SmartRoomProgram_DS_CS.ino.cpp",
+    "Include": "WebSocketsServer.h",
+    "Includepath": "C:\\Users\\Misiek\\Documents\\Arduino\\libraries\\WebSockets\\src"
+  },
+  {
+    "Sourcefile": "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\build\\sketch\\SmartRoomProgram_DS_CS.ino.cpp",
     "Include": "BlynkSimpleEsp8266.h",
     "Includepath": "C:\\Users\\Misiek\\Documents\\Arduino\\libraries\\Blynk\\src"
+  },
+  {
+    "Sourcefile": "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\build\\sketch\\SmartRoomProgram_DS_CS.ino.cpp",
+    "Include": "EEPROM.h",
+    "Includepath": "C:\\Users\\Misiek\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.7.4\\libraries\\EEPROM"
   },
   {
     "Sourcefile": "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\build\\sketch\\SmartRoomProgram_DS_CS.ino.cpp",
@@ -215,6 +215,36 @@
     "Includepath": null
   },
   {
+    "Sourcefile": "C:\\Users\\Misiek\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.7.4\\libraries\\Hash\\src\\Hash.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\Misiek\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.7.4\\libraries\\ESP8266WebServer\\src\\detail\\mimetable.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\Misiek\\Documents\\Arduino\\libraries\\NTPClient\\NTPClient.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\Misiek\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.7.4\\libraries\\SPI\\SPI.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\Misiek\\Documents\\Arduino\\libraries\\WiFiManager\\WiFiManager.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\Misiek\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.7.4\\libraries\\DNSServer\\src\\DNSServer.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
     "Sourcefile": "C:\\Users\\Misiek\\Documents\\Arduino\\libraries\\WebSockets\\src\\SocketIOclient.cpp",
     "Include": "",
     "Includepath": null
@@ -250,41 +280,6 @@
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\Misiek\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.7.4\\libraries\\ESP8266WebServer\\src\\detail\\mimetable.cpp",
-    "Include": "",
-    "Includepath": null
-  },
-  {
-    "Sourcefile": "C:\\Users\\Misiek\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.7.4\\libraries\\Hash\\src\\Hash.cpp",
-    "Include": "",
-    "Includepath": null
-  },
-  {
-    "Sourcefile": "C:\\Users\\Misiek\\Documents\\Arduino\\libraries\\NTPClient\\NTPClient.cpp",
-    "Include": "",
-    "Includepath": null
-  },
-  {
-    "Sourcefile": "C:\\Users\\Misiek\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.7.4\\libraries\\SPI\\SPI.cpp",
-    "Include": "",
-    "Includepath": null
-  },
-  {
-    "Sourcefile": "C:\\Users\\Misiek\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.7.4\\libraries\\EEPROM\\EEPROM.cpp",
-    "Include": "",
-    "Includepath": null
-  },
-  {
-    "Sourcefile": "C:\\Users\\Misiek\\Documents\\Arduino\\libraries\\WiFiManager\\WiFiManager.cpp",
-    "Include": "",
-    "Includepath": null
-  },
-  {
-    "Sourcefile": "C:\\Users\\Misiek\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.7.4\\libraries\\DNSServer\\src\\DNSServer.cpp",
-    "Include": "",
-    "Includepath": null
-  },
-  {
     "Sourcefile": "C:\\Users\\Misiek\\Documents\\Arduino\\libraries\\Blynk\\src\\utility\\BlynkDebug.cpp",
     "Include": "",
     "Includepath": null
@@ -301,6 +296,11 @@
   },
   {
     "Sourcefile": "C:\\Users\\Misiek\\Documents\\Arduino\\libraries\\Blynk\\src\\utility\\utility.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\Misiek\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.7.4\\libraries\\EEPROM\\EEPROM.cpp",
     "Include": "",
     "Includepath": null
   },

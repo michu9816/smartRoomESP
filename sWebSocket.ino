@@ -29,8 +29,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
                 Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
         
               // send message to client
-              generateStateString();
-              sendStateToClients();
+              refreshState();
             }
             break;
         case WStype_TEXT:
