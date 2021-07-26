@@ -13,6 +13,18 @@
 #include <ElegantOTA.h>
 #include "Dimmer.h"
 
+enum shineMode{
+  STABLE,
+  FADE,
+  STROBE,
+  BREATHING
+};
+
+shineMode sMode = STABLE;
+int step = 1;
+int fadeBrightness = 100;
+long nextFadeTime = 0;
+long fadeDuration = 1000;
 // PRZYPISANIE MIEJSC W PAMIĘCI DLA DANYCH
 
 int redEPROM = 1;
@@ -93,6 +105,7 @@ bool useCSData = false;
 // CZUJNIK RUCHU
 bool motion = false;
 long lastMotion = 0;
+long lastTimeUpdate = 0;
 
 // CZUJNIK ZMIERZCHU
 bool lightSensor = false;
@@ -100,7 +113,7 @@ bool lightSensor = false;
 // USTAWIENIA CZESTOTLIWOSCI ODPYTYWANIA
 long lastRequest = 0;
 long lastDHTRequest = 0;
-int secDelay = 3;
+int secDelay = 20;
 int secDHTDelay = 20;
 
 
@@ -183,8 +196,8 @@ void loop() {
   webServerHandler();
   csgoHandle();
   offTimerHandler();
+  
   if(millis() > lastRequest + (secDelay * 1000) && !useCSData){
-    timeClient.update();
 
     if(checkMotionSensor){
       if(digitalRead(motionSensorPin)){ // ODPYTYWANIE CZUJNIKA RUCHU
@@ -227,11 +240,16 @@ void loop() {
     sendStateToClients();
   }
   
-  if(millis() > lastDHTRequest + (secDHTDelay * 1000) && readTemperature){
-    readTHSensor();
-    lastDHTRequest = millis();
-    sendStateToClients();
+  if(millis() > lastTimeUpdate + 30000){
+    lastTimeUpdate = millis();
+    timeClient.update();
   }
+
+  // if(millis() > lastDHTRequest + (secDHTDelay * 1000) && readTemperature){
+  //   readTHSensor();
+  //   lastDHTRequest = millis();
+  //   sendStateToClients();
+  // }
   if(useBlynk)
     blynkHandler();
   // ArduinoOTA.handle();
@@ -239,4 +257,72 @@ void loop() {
   red.handler();
   green.handler();
   blue.handler();
+
+  if(sMode==FADE){
+    if(millis() > nextFadeTime + fadeDuration){
+      
+      switch(step){
+        case 1:
+          red.brightnessTransition(fadeBrightness,fadeDuration,true);
+          green.brightnessTransition(fadeBrightness,fadeDuration,true);
+          blue.brightnessTransition(0,fadeDuration,true);
+          step++;
+          break;
+        case 2:
+          red.brightnessTransition(0,fadeDuration,true);
+          green.brightnessTransition(fadeBrightness,fadeDuration,true);
+          blue.brightnessTransition(0,fadeDuration,true);
+          step++;
+          break;
+        case 3:
+          red.brightnessTransition(0,fadeDuration,true);
+          green.brightnessTransition(fadeBrightness,fadeDuration,true);
+          blue.brightnessTransition(fadeBrightness,fadeDuration,true);
+          step++;
+          break;
+        case 4:
+          red.brightnessTransition(0,fadeDuration,true);
+          green.brightnessTransition(0,fadeDuration,true);
+          blue.brightnessTransition(fadeBrightness,fadeDuration,true);
+          step++;
+          break;
+        case 5:
+          red.brightnessTransition(fadeBrightness,fadeDuration,true);
+          green.brightnessTransition(0,fadeDuration,true);
+          blue.brightnessTransition(fadeBrightness,fadeDuration,true);
+          step++;
+          break;
+        default:
+          red.brightnessTransition(fadeBrightness,fadeDuration,true);
+          green.brightnessTransition(0,fadeDuration,true);
+          blue.brightnessTransition(0,fadeDuration,true);
+          step = 1;
+          break;
+      }
+      nextFadeTime = millis();
+    }
+  }else if(sMode==STROBE){
+    if(millis() > (nextFadeTime + (step==1 ? 20 : 60))){
+      
+      switch(step){
+        case 1:
+          red.brightnessSet(red.getLastBrightness(),false,false);
+          green.brightnessSet(green.getLastBrightness(),false,false);
+          blue.brightnessSet(blue.getLastBrightness(),false,false);
+          step++;
+          break;
+        default:
+          red.brightnessSet(0,false,false);
+          green.brightnessSet(0,false,false);
+          blue.brightnessSet(0,false,false);
+          step = 1;
+          break;
+      }
+      nextFadeTime = millis();
+    }
+  }else if(sMode==BREATHING){
+    red.breathingHandler();
+    green.breathingHandler();
+    blue.breathingHandler();
+  }
 }

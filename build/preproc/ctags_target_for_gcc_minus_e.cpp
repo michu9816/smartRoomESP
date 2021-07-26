@@ -6,16 +6,26 @@
 # 6 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino" 2
 # 7 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino" 2
 # 8 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino" 2
-# 9 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino" 2
 //#include <ArduinoOTA.h>
+# 10 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino" 2
 # 11 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino" 2
 # 12 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino" 2
 # 13 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino" 2
 # 14 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino" 2
 # 15 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino" 2
-# 16 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino" 2
-# 17 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\SmartRoomProgram_DS_CS.ino" 2
 
+enum shineMode{
+  STABLE,
+  FADE,
+  STROBE,
+  BREATHING
+};
+
+shineMode sMode = STABLE;
+int step = 1;
+int fadeBrightness = 100;
+long nextFadeTime = 0;
+long fadeDuration = 1000;
 // PRZYPISANIE MIEJSC W PAMIĘCI DLA DANYCH
 
 int redEPROM = 1;
@@ -82,8 +92,6 @@ int turnOffDelay = 30;
 bool autoMode = false;
 bool checkLightSensorInAutoMode = true;
 bool ledsOn = false;
-bool isFadingOut = false;
-bool isFadingIn = false;
 
 int turnOnHour = 6;
 int turnOnMinute = 25;
@@ -92,19 +100,13 @@ int turnOffMinute = 45;
 
 bool scheduledDays[7] = {false,true,true,true,true,true,false}; // Dni z automatycznym włączaniem światła / nd,pn ...
 
-
-// WEBSOCKET
-WebSocketsServer webSocket = WebSocketsServer(8080);
-
-// HTTP
-ESP8266WebServer server(80);
-
 // POBIERANIE KOLOROW Z CS
 bool useCSData = false;
 
 // CZUJNIK RUCHU
 bool motion = false;
 long lastMotion = 0;
+long lastTimeUpdate = 0;
 
 // CZUJNIK ZMIERZCHU
 bool lightSensor = false;
@@ -112,152 +114,11 @@ bool lightSensor = false;
 // USTAWIENIA CZESTOTLIWOSCI ODPYTYWANIA
 long lastRequest = 0;
 long lastDHTRequest = 0;
-int secDelay = 3;
+int secDelay = 20;
 int secDHTDelay = 20;
 
 
 // FUNKCJE DLA LEDOW
-
-
-void httpFadeIn(){
-  fadeIn();
-  server.send(200, "text/plain", "włączono");
-}
-
-void httpFadeOut(){
-  fadeOut();
-  server.send(200, "text/plain", "wyłączono");
-}
-
-void fadeOut(){
-  red.fadeOut();
-  green.fadeOut();
-  blue.fadeOut();
-};
-
-void fadeIn(){
-  red.fadeIn();
-  green.fadeIn();
-  blue.fadeIn();
-};
-
-void setColor(int redColor, int greenColor, int blueColor){
-  red.brightnessSet(redColor);
-  green.brightnessSet(greenColor);
-  blue.brightnessSet(blueColor);
-};
-
-void httpLedStatus(){
-  String res = ledsOn ? "1" : "0";
-  server.send(200, "text/plain", res);
-}
-
-void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
-
-    switch(type) {
-        case WStype_DISCONNECTED:
-            Serial.printf("[%u] Disconnected!\n", num);
-            break;
-        case WStype_CONNECTED:
-            {
-                IPAddress ip = webSocket.remoteIP(num);
-                Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
-
-              // send message to client
-              generateStateString();
-              sendStateToClients();
-            }
-            break;
-        case WStype_TEXT:
-            Serial.printf("[%u] get Text: %s\n", num, payload);
-
-            if(payload[0] == '#') {
-                // we get RGB data
-
-                // decode rgb data
-                uint32_t rgb = (uint32_t) strtol((const char *) &payload[1], __null, 16);
-
-                Serial.print(lastRed);
-                Serial.print(",");
-                Serial.print(lastGreen);
-                Serial.print(",");
-                Serial.println(lastBlue);
-                if(lastRed==0 && lastBlue == 0 && lastGreen == 0){
-                  ledsOn = false;
-                  lastRed = 30;
-                  lastGreen = 30;
-                  lastBlue = 30;
-
-                  EEPROM.write(redEPROM, lastRed);
-                  EEPROM.write(greenEPROM, lastGreen);
-                  EEPROM.write(blueEPROM, lastBlue);
-                }
-                // transitionToColor(((rgb >> 16) & 0xFF) * 4, ((rgb >> 8) & 0xFF) * 4, ((rgb >> 0) & 0xFF) * 4);
-                setColor(((rgb >> 16) & 0xFF), ((rgb >> 8) & 0xFF), ((rgb >> 0) & 0xFF));
-            }else if(payload[0]=='i'){
-              fadeIn();
-            }else if(payload[0]=='o'){
-              fadeOut();
-            }else if(payload[0]=='x'){
-              digitalWrite(15,0);
-              digitalWrite(13,0);
-              digitalWrite(12,0);
-            }else if(payload[0]=='y'){
-              analogWrite(15,0);
-              analogWrite(13,0);
-              analogWrite(12,0);
-            }else if(payload[0]=='c'){
-              useCSData = !useCSData;
-            }else if(payload[0]=='a'){
-              autoMode = !autoMode;
-              EEPROM.write(autoEPROM, autoMode);
-              lastMotion = 0;
-              EEPROM.commit();
-            }else if(payload[0]=='b'){
-              checkLightSensorInAutoMode = !checkLightSensorInAutoMode;
-              EEPROM.write(checkLightSensorEPROM, checkLightSensorInAutoMode);
-              lastMotion = 0;
-              EEPROM.commit();
-            }else{
-              DynamicJsonDocument doc(1024);
-              DeserializationError error = deserializeJson(doc, payload);
-              if (error)
-                return;
-              else{
-                int newScheduledDays[7] = {doc["scheduled"][0],doc["scheduled"][1],doc["scheduled"][2],doc["scheduled"][3],doc["scheduled"][4],doc["scheduled"][5],doc["scheduled"][6]};
-                int newTurnOnHour = doc["turnOnHour"];
-                int newTurnOnMinute = doc["turnOnMinute"];
-                int newTurnOffHour = doc["turnOffHour"];
-                int newTurnOffMinute = doc["turnOffMinute"];
-                turnOnHour = newTurnOnHour;
-                turnOnMinute = newTurnOnMinute;
-                turnOffHour = newTurnOffHour;
-                turnOffMinute = newTurnOffMinute;
-                for(int i = 0;i<7;i++){
-                  scheduledDays[i] = newScheduledDays[i];
-                }
-
-                bool scheduleOff = doc["confirmed"];
-                int scheduleMinutes = doc["minutes"];
-                offTimerSet(scheduleOff,scheduleMinutes);
-              }
-            }
-            break;
-        case WStype_BIN:
-            Serial.printf("[%u] get binary length: %u\n", num, length);
-            hexdump(payload, length);
-
-            // send message to client
-            // webSocket.sendBIN(num, payload, length);
-            break;
-    }
-
-}
-
-
-void textAll(String data){
-  webSocket.broadcastTXT(data);
-}
 
 bool isScheduledDay(){
   Serial.println("Sprawdzam czy dzisiaj jest harmonogramowany / nowy");
@@ -268,15 +129,6 @@ bool isScheduledDay(){
   return false;
 }
 
-void checkIncommingRequest(){
-    if(server.method() != HTTP_POST){
-        server.send(200, "text/plain", "Spoczko");
-    }else{
-      if(useCSData){
-        csgoHandler(server.arg("plain"));
-      }
-    }
-}
 
 void setup() {
   Serial.begin(115200);
@@ -332,29 +184,21 @@ void setup() {
 
 
 // handle index
-  server.on("/", checkIncommingRequest);
-  server.on("/ledOn", httpFadeIn);
-  server.on("/ledOff", httpFadeOut);
-  server.on("/ledStatus", httpLedStatus);
-  ElegantOTA.begin(&server); // Start ElegantOTA
-  server.begin();
+  webServerInitialize();
 
-  webSocket.begin();
-  webSocket.onEvent(webSocketEvent);
-
-
-  EEPROM.begin(10);
+  initializeWebsocket();
+  EEPROMInitialize();
 
   loadEPROMValues();
 }
 
 void loop() {
-  webSocket.loop();
-  server.handleClient();
+  websocketHandler();
+  webServerHandler();
   csgoHandle();
   offTimerHandler();
+
   if(millis() > lastRequest + (secDelay * 1000) && !useCSData){
-    timeClient.update();
 
     if(checkMotionSensor){
       if(digitalRead(motionSensorPin)){ // ODPYTYWANIE CZUJNIKA RUCHU
@@ -397,11 +241,16 @@ void loop() {
     sendStateToClients();
   }
 
-  if(millis() > lastDHTRequest + (secDHTDelay * 1000) && readTemperature){
-    readTHSensor();
-    lastDHTRequest = millis();
-    sendStateToClients();
+  if(millis() > lastTimeUpdate + 30000){
+    lastTimeUpdate = millis();
+    timeClient.update();
   }
+
+  // if(millis() > lastDHTRequest + (secDHTDelay * 1000) && readTemperature){
+  //   readTHSensor();
+  //   lastDHTRequest = millis();
+  //   sendStateToClients();
+  // }
   if(useBlynk)
     blynkHandler();
   // ArduinoOTA.handle();
@@ -409,20 +258,74 @@ void loop() {
   red.handler();
   green.handler();
   blue.handler();
-}
 
-void loadEPROMValues(){
-  lastRed = EEPROM.read(redEPROM);
-  lastGreen = EEPROM.read(greenEPROM);
-  lastBlue = EEPROM.read(blueEPROM);
+  if(sMode==FADE){
+    if(millis() > nextFadeTime + fadeDuration){
 
-  autoMode = EEPROM.read(autoEPROM);
-  checkLightSensorInAutoMode = EEPROM.read(checkLightSensorEPROM);
+      switch(step){
+        case 1:
+          red.brightnessTransition(fadeBrightness,fadeDuration,true);
+          green.brightnessTransition(fadeBrightness,fadeDuration,true);
+          blue.brightnessTransition(0,fadeDuration,true);
+          step++;
+          break;
+        case 2:
+          red.brightnessTransition(0,fadeDuration,true);
+          green.brightnessTransition(fadeBrightness,fadeDuration,true);
+          blue.brightnessTransition(0,fadeDuration,true);
+          step++;
+          break;
+        case 3:
+          red.brightnessTransition(0,fadeDuration,true);
+          green.brightnessTransition(fadeBrightness,fadeDuration,true);
+          blue.brightnessTransition(fadeBrightness,fadeDuration,true);
+          step++;
+          break;
+        case 4:
+          red.brightnessTransition(0,fadeDuration,true);
+          green.brightnessTransition(0,fadeDuration,true);
+          blue.brightnessTransition(fadeBrightness,fadeDuration,true);
+          step++;
+          break;
+        case 5:
+          red.brightnessTransition(fadeBrightness,fadeDuration,true);
+          green.brightnessTransition(0,fadeDuration,true);
+          blue.brightnessTransition(fadeBrightness,fadeDuration,true);
+          step++;
+          break;
+        default:
+          red.brightnessTransition(fadeBrightness,fadeDuration,true);
+          green.brightnessTransition(0,fadeDuration,true);
+          blue.brightnessTransition(0,fadeDuration,true);
+          step = 1;
+          break;
+      }
+      nextFadeTime = millis();
+    }
+  }else if(sMode==STROBE){
+    if(millis() > (nextFadeTime + (step==1 ? 20 : 60))){
 
-  if(EEPROM.read(ledsOnEPROM))
-    fadeIn();
-  else
-    fadeOut();
+      switch(step){
+        case 1:
+          red.brightnessSet(red.getLastBrightness(),false,false);
+          green.brightnessSet(green.getLastBrightness(),false,false);
+          blue.brightnessSet(blue.getLastBrightness(),false,false);
+          step++;
+          break;
+        default:
+          red.brightnessSet(0,false,false);
+          green.brightnessSet(0,false,false);
+          blue.brightnessSet(0,false,false);
+          step = 1;
+          break;
+      }
+      nextFadeTime = millis();
+    }
+  }else if(sMode==BREATHING){
+    red.breathingHandler();
+    green.breathingHandler();
+    blue.breathingHandler();
+  }
 }
 # 1 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sBlynk.ino"
 # 2 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sBlynk.ino" 2
@@ -544,6 +447,56 @@ void saveColorBeforeCS(){
   savedGreen = lastGreen;
   savedBlue = lastBlue;
 }
+# 1 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sEEPROM.ino"
+# 2 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sEEPROM.ino" 2
+
+void EEPROMInitialize(){
+    EEPROM.begin(10);
+}
+
+void loadEPROMValues(){
+  lastRed = EEPROM.read(redEPROM);
+  lastGreen = EEPROM.read(greenEPROM);
+  lastBlue = EEPROM.read(blueEPROM);
+
+  autoMode = EEPROM.read(autoEPROM);
+  checkLightSensorInAutoMode = EEPROM.read(checkLightSensorEPROM);
+
+  if(EEPROM.read(ledsOnEPROM))
+    fadeIn();
+  else
+    fadeOut();
+}
+# 1 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sLed.ino"
+extern ESP8266WebServer server;
+
+void httpFadeIn(){
+  fadeIn();
+  server.send(200, "text/plain", "włączono");
+}
+
+void httpFadeOut(){
+  fadeOut();
+  server.send(200, "text/plain", "wyłączono");
+}
+
+void fadeOut(){
+  red.fadeOut();
+  green.fadeOut();
+  blue.fadeOut();
+};
+
+void fadeIn(){
+  red.fadeIn();
+  green.fadeIn();
+  blue.fadeIn();
+};
+
+void setColor(int redColor, int greenColor, int blueColor){
+  red.brightnessSet(redColor);
+  green.brightnessSet(greenColor);
+  blue.brightnessSet(blueColor);
+};
 # 1 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sOffTimer.ino"
 long offTimerLastRequest = 0;
 int offTimerMinutes = 0;
@@ -711,6 +664,192 @@ void sendStateToClients(){
     textAll(state);
     oldState = state;
   }
+  if(useBlynk)
+    blynkWriteTH(getTemperature(), getHumidity());
+}
+# 1 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sWebServer.ino"
+// HTTP
+ESP8266WebServer server(80);
 
-  blynkWriteTH(getTemperature(), getHumidity());
+
+void httpLedStatus(){
+  String res = ledsOn ? "1" : "0";
+  server.send(200, "text/plain", res);
+}
+
+
+void checkIncommingRequest(){
+    if(server.method() != HTTP_POST){
+        server.send(200, "text/plain", "Spoczko");
+    }else{
+      if(useCSData){
+        csgoHandler(server.arg("plain"));
+      }
+    }
+}
+
+void webServerInitialize(){
+    server.on("/", checkIncommingRequest);
+    server.on("/ledOn", httpFadeIn);
+    server.on("/ledOff", httpFadeOut);
+    server.on("/ledStatus", httpLedStatus);
+    server.begin();
+    ElegantOTA.begin(&server); // Start ElegantOTA
+}
+
+void webServerHandler(){
+    server.handleClient();
+}
+# 1 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sWebSocket.ino"
+# 2 "c:\\Users\\Misiek\\Desktop\\SRProgram\\SmartRoomProgram_DS_CS\\sWebSocket.ino" 2
+
+extern String state;
+// WEBSOCKET
+WebSocketsServer webSocket = WebSocketsServer(8080);
+
+void initializeWebsocket(){
+    webSocket.begin();
+    webSocket.onEvent(webSocketEvent);
+}
+
+void websocketHandler(){
+    webSocket.loop();
+}
+
+
+void textAll(String data){
+  webSocket.broadcastTXT(data);
+}
+
+void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
+
+    switch(type) {
+        case WStype_DISCONNECTED:
+            Serial.printf("[%u] Disconnected!\n", num);
+            break;
+        case WStype_CONNECTED:
+            {
+                IPAddress ip = webSocket.remoteIP(num);
+                Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
+
+              // send message to client
+              generateStateString();
+              // sendStateToClients();
+              webSocket.sendTXT(num, state);
+            }
+            break;
+        case WStype_TEXT:
+            Serial.printf("[%u] get Text: %s\n", num, payload);
+
+            if(payload[0] == '#') {
+                // we get RGB data
+
+                // decode rgb data
+                uint32_t rgb = (uint32_t) strtol((const char *) &payload[1], __null, 16);
+
+                Serial.print(lastRed);
+                Serial.print(",");
+                Serial.print(lastGreen);
+                Serial.print(",");
+                Serial.println(lastBlue);
+                if(lastRed==0 && lastBlue == 0 && lastGreen == 0){
+                  ledsOn = false;
+                  lastRed = 30;
+                  lastGreen = 30;
+                  lastBlue = 30;
+
+                  EEPROM.write(redEPROM, lastRed);
+                  EEPROM.write(greenEPROM, lastGreen);
+                  EEPROM.write(blueEPROM, lastBlue);
+                }
+                // transitionToColor(((rgb >> 16) & 0xFF) * 4, ((rgb >> 8) & 0xFF) * 4, ((rgb >> 0) & 0xFF) * 4);
+                setColor(((rgb >> 16) & 0xFF), ((rgb >> 8) & 0xFF), ((rgb >> 0) & 0xFF));
+            }else if(payload[0]=='i'){
+              fadeIn();
+            }else if(payload[0]=='o'){
+              fadeOut();
+            }else if(payload[0]=='x'){
+              digitalWrite(15,0);
+              digitalWrite(13,0);
+              digitalWrite(12,0);
+            }else if(payload[0]=='y'){
+              analogWrite(15,0);
+              analogWrite(13,0);
+              analogWrite(12,0);
+            }else if(payload[0]=='c'){
+              useCSData = !useCSData;
+            }else if(payload[0]=='a'){
+              autoMode = !autoMode;
+              EEPROM.write(autoEPROM, autoMode);
+              lastMotion = 0;
+              EEPROM.commit();
+            }else if(payload[0]=='b'){
+              checkLightSensorInAutoMode = !checkLightSensorInAutoMode;
+              EEPROM.write(checkLightSensorEPROM, checkLightSensorInAutoMode);
+              lastMotion = 0;
+              EEPROM.commit();
+            }else{
+              DynamicJsonDocument doc(1024);
+              DeserializationError error = deserializeJson(doc, payload);
+              if (error)
+                return;
+              else{
+                if(doc.containsKey("scheduled")){
+                  int newScheduledDays[7] = {doc["scheduled"][0],doc["scheduled"][1],doc["scheduled"][2],doc["scheduled"][3],doc["scheduled"][4],doc["scheduled"][5],doc["scheduled"][6]};
+                  int newTurnOnHour = doc["turnOnHour"];
+                  int newTurnOnMinute = doc["turnOnMinute"];
+                  int newTurnOffHour = doc["turnOffHour"];
+                  int newTurnOffMinute = doc["turnOffMinute"];
+                  turnOnHour = newTurnOnHour;
+                  turnOnMinute = newTurnOnMinute;
+                  turnOffHour = newTurnOffHour;
+                  turnOffMinute = newTurnOffMinute;
+                  for(int i = 0;i<7;i++){
+                    scheduledDays[i] = newScheduledDays[i];
+                  }
+                }else if(doc.containsKey("confirmed")){
+
+                  bool scheduleOff = doc["confirmed"];
+                  int scheduleMinutes = doc["minutes"];
+                  offTimerSet(scheduleOff,scheduleMinutes);
+                }else if(doc.containsKey("mode")){
+                  String mode = doc["mode"];
+                  int speed = doc["speed"];
+                  double frequency = doc["frequency"];
+                  int brightness = doc["brightness"];
+                  // textAll(mode);
+                  red.fadeIn();
+                  green.fadeIn();
+                  blue.fadeIn();
+                  if(mode == "default"){
+                    sMode = STABLE;
+                  }else if(mode == "fade"){
+                    sMode = FADE;
+                    if(doc.containsKey("speed"))
+                      fadeDuration = speed;
+                    if(doc.containsKey("brightness"))
+                      fadeBrightness = brightness;
+                  }else if(mode == "strobe"){
+                    sMode = STROBE;
+                  }else if(mode == "breathing"){
+                    sMode = BREATHING;
+                    if(doc.containsKey("frequency")){
+                      red.setBreathFrequency(frequency);
+                      green.setBreathFrequency(frequency);
+                      blue.setBreathFrequency(frequency);
+                    }
+                  }
+                }
+              }
+            }
+            break;
+        case WStype_BIN:
+            Serial.printf("[%u] get binary length: %u\n", num, length);
+            hexdump(payload, length);
+
+            // send message to client
+            // webSocket.sendBIN(num, payload, length);
+            break;
+    }
+
 }

@@ -1,5 +1,6 @@
 #include <WebSocketsServer.h>
 
+extern String state;
 // WEBSOCKET
 WebSocketsServer webSocket = WebSocketsServer(8080);
 
@@ -30,7 +31,8 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
         
               // send message to client
               generateStateString();
-              sendStateToClients();
+              // sendStateToClients();
+              webSocket.sendTXT(num, state);
             }
             break;
         case WStype_TEXT:
@@ -89,22 +91,53 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
               if (error)
                 return;
               else{
-                int newScheduledDays[7] = {doc["scheduled"][0],doc["scheduled"][1],doc["scheduled"][2],doc["scheduled"][3],doc["scheduled"][4],doc["scheduled"][5],doc["scheduled"][6]};
-                int newTurnOnHour = doc["turnOnHour"];
-                int newTurnOnMinute = doc["turnOnMinute"];
-                int newTurnOffHour = doc["turnOffHour"];
-                int newTurnOffMinute = doc["turnOffMinute"];
-                turnOnHour = newTurnOnHour;
-                turnOnMinute = newTurnOnMinute;
-                turnOffHour = newTurnOffHour;
-                turnOffMinute = newTurnOffMinute;
-                for(int i = 0;i<7;i++){
-                  scheduledDays[i] = newScheduledDays[i];
-                }
+                if(doc.containsKey("scheduled")){
+                  int newScheduledDays[7] = {doc["scheduled"][0],doc["scheduled"][1],doc["scheduled"][2],doc["scheduled"][3],doc["scheduled"][4],doc["scheduled"][5],doc["scheduled"][6]};
+                  int newTurnOnHour = doc["turnOnHour"];
+                  int newTurnOnMinute = doc["turnOnMinute"];
+                  int newTurnOffHour = doc["turnOffHour"];
+                  int newTurnOffMinute = doc["turnOffMinute"];
+                  turnOnHour = newTurnOnHour;
+                  turnOnMinute = newTurnOnMinute;
+                  turnOffHour = newTurnOffHour;
+                  turnOffMinute = newTurnOffMinute;
+                  for(int i = 0;i<7;i++){
+                    scheduledDays[i] = newScheduledDays[i];
+                  }
+                }else if(doc.containsKey("confirmed")){
 
-                bool scheduleOff = doc["confirmed"];
-                int scheduleMinutes = doc["minutes"];
-                offTimerSet(scheduleOff,scheduleMinutes);
+                  bool scheduleOff = doc["confirmed"];
+                  int scheduleMinutes = doc["minutes"];
+                  offTimerSet(scheduleOff,scheduleMinutes);
+                }else if(doc.containsKey("mode")){
+                  String mode = doc["mode"];
+                  int speed = doc["speed"];
+                  double frequency = doc["frequency"];
+                  int brightness = doc["brightness"];
+                  // textAll(mode);
+                
+                  if(mode == "default"){
+                    sMode = STABLE;
+                    red.fadeIn();
+                    green.fadeIn();
+                    blue.fadeIn();
+                  }else if(mode == "fade"){
+                    sMode = FADE;
+                    if(doc.containsKey("speed"))
+                      fadeDuration = speed;
+                    if(doc.containsKey("brightness"))
+                      fadeBrightness = brightness;
+                  }else if(mode == "strobe"){
+                    sMode = STROBE;
+                  }else if(mode == "breathing"){
+                    sMode = BREATHING;
+                    if(doc.containsKey("frequency")){
+                      red.setBreathFrequency(frequency);
+                      green.setBreathFrequency(frequency);
+                      blue.setBreathFrequency(frequency);
+                    }
+                  }
+                }
               }
             }
             break;

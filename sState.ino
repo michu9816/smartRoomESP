@@ -85,6 +85,6 @@ void sendStateToClients(){
     textAll(state);
     oldState = state;
   }
-
-  blynkWriteTH(getTemperature(), getHumidity());
+  if(useBlynk)
+    blynkWriteTH(getTemperature(), getHumidity());
 }

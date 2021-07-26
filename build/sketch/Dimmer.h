@@ -10,11 +10,14 @@ class Dimmer{
         void initialize();
         void brightnessTransition(int);
         void brightnessTransition(int,long);
+        void brightnessTransition(int,long,bool);
         void brightnessSet(int);
         void brightnessSet(int,bool,bool);
         void handler();
         void fadeIn();
         void fadeOut();
+        void breathingHandler();
+        void setBreathFrequency(double);
     private:
         int id;
         int brightness = 0;
@@ -24,10 +27,16 @@ class Dimmer{
         int outputPin;
         int inputPin;
         int nextTransitionMillisStep;
+        int breathStepTime = 20;
         long nextTransitionMillis;
+        long lastBreathMillis = 0;
+        long lastBreathStepMillis = 0;
         long transitionDuration = 750;
+        double breathFrequency = 3;
+        double breathMultipler = 1.0;
         bool turnedOn = false;
         bool saveLastColor = true;
+        String breathDecision = "increase";
         String transitionDecision;
         
         // USTAWIENIA DLA PRZYCISKÓW

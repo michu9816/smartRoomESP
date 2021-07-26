@@ -83,6 +83,11 @@ void Dimmer::brightnessTransition(int brightnessRequired,long transitionDuration
 	nextTransitionMillis = millis();
 }
 
+void Dimmer::brightnessTransition(int brightnessRequired,long transitionDuration, bool saveState){
+	saveLastColor = false;
+	brightnessTransition(brightnessRequired,transitionDuration);
+}
+
 void Dimmer::brightnessSet(int brightness){
 	brightnessSet(brightness,false,true);
 }
@@ -145,6 +150,29 @@ void Dimmer::handler(){
 	refreshWebsocketState();
 	// buttonsHandler();
 }
+
+void Dimmer::breathingHandler(){
+	if(millis() > lastBreathMillis + (breathMultipler==1.0 ? (breathFrequency * 1000) : breathMultipler<0.41 ? (breathFrequency * 200) : 0)){
+		if(millis() > lastBreathStepMillis + breathStepTime){
+			if(breathDecision=="increase"){
+				breathMultipler += 0.01;
+			}else{
+				breathMultipler -= 0.01;
+			}
+			if(breathMultipler>=1){
+				breathDecision = "decrease";
+				lastBreathMillis = millis();
+			}else if(breathMultipler<=0.4){
+				breathDecision = "increase";
+				lastBreathMillis = millis();
+			}
+			int newBrightness = lastBrightness*breathMultipler;
+			brightnessSet(newBrightness,false,false);
+			lastBreathStepMillis = millis();
+		}
+	}
+}
+
 
 void Dimmer::buttonsHandler(){
 	
@@ -212,6 +240,10 @@ int Dimmer::getBrightness(){
 
 int Dimmer::getLastBrightness(){
 	return lastBrightness;
+}
+
+void Dimmer::setBreathFrequency(double frequency){
+	breathFrequency = frequency;
 }
 
 void Dimmer::refreshWebsocketState(){
