@@ -1,15 +1,16 @@
 String state = "";
 String oldState = "";
 
-
-void generateStateString(){
-    bool ledsOn;
+void refreshlightStatus(){
   if(red.getBrightness() == 0 && green.getBrightness() == 0 && blue.getBrightness() == 0){
     ledsOn = false;
   }else{
     ledsOn = true;
   }
+}
 
+void generateStateString(){
+refreshlightStatus();
   String newState = "";
   newState += "{\"dhtSensor\":{\"humidity\":";
   newState += getHumidity();

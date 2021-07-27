@@ -86,10 +86,12 @@ int lastRed;
 int lastGreen;
 int lastBlue;
 
+int lightPin = 4;
+
 int turnOffDelay = 30;
 
 bool autoMode = false;
-bool checkLightSensorInAutoMode = true;
+bool checkLightSensorInAutoMode = false;
 bool ledsOn = false;
 
 int turnOnHour = 6;
@@ -196,6 +198,7 @@ void loop() {
   webServerHandler();
   csgoHandle();
   offTimerHandler();
+  EEPROMHandler();
   
   if(millis() > lastRequest + (secDelay * 1000) && !useCSData){
 
@@ -215,9 +218,13 @@ void loop() {
         lightSensor = true;
       }
     }
-
+    refreshlightStatus();
     // zapalanie ledow wg czujnika ruchu
     if(autoMode && !ledsOn && (checkLightSensorInAutoMode ? !lightSensor : true)){
+      Serial.println(timeClient.getHours());
+      Serial.println(turnOnHour);
+      Serial.println(timeClient.getMinutes());
+      Serial.println(turnOnMinute);
       if((isScheduledDay() && timeClient.getHours() == turnOnHour && timeClient.getMinutes() == turnOnMinute)){
       // if(motion || (isScheduledDay() && timeClient.getHours() == 18 && timeClient.getMinutes() == 17)){
         Serial.println("Włączono pasek LED");
@@ -225,6 +232,10 @@ void loop() {
       }
 
     }else if(autoMode && ledsOn){
+       Serial.println(timeClient.getHours());
+      Serial.println(turnOnHour);
+      Serial.println(timeClient.getMinutes());
+      Serial.println(turnOnMinute);
       if((isScheduledDay() && timeClient.getHours() == turnOffHour && timeClient.getMinutes() == turnOffMinute)){
       // if((lastMotion != 0 && (lastMotion + turnOffDelay*1000 > millis())) || (isScheduledDay() && timeClient.getHours() == 18 && timeClient.getMinutes() == 18)){
         Serial.println("Wyłączono pasek LED");

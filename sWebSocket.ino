@@ -79,12 +79,12 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
               autoMode = !autoMode;
               EEPROM.write(autoEPROM, autoMode);
               lastMotion = 0;
-              EEPROM.commit();
+              saveEEPROM();
             }else if(payload[0]=='b'){
               checkLightSensorInAutoMode = !checkLightSensorInAutoMode;
               EEPROM.write(checkLightSensorEPROM, checkLightSensorInAutoMode);
               lastMotion = 0;
-              EEPROM.commit();
+              saveEEPROM();
             }else{
               DynamicJsonDocument doc(1024);
               DeserializationError error = deserializeJson(doc, payload);
