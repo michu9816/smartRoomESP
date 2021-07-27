@@ -209,7 +209,7 @@ void loop() {
       }else{
         motion = false;
       }
-    }
+    } 
 
     if(checkLightSensor){
       if(digitalRead(lightSensorSensorPin)){// ODPYTYWANIE CZUJNIKA ZMIERZCHU
