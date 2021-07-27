@@ -11,15 +11,11 @@ void httpFadeOut(){
 }
 
 void fadeOut(){
-  red.fadeOut();
-  green.fadeOut();
-  blue.fadeOut();
+  turnOffLight();
 };
 
 void fadeIn(){
-  red.fadeIn();
-  green.fadeIn();
-  blue.fadeIn();
+  turnOnLight();
 };
 
 void setColor(int redColor, int greenColor, int blueColor){

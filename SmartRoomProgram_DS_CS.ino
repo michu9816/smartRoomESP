@@ -144,17 +144,9 @@ void setup() {
     readTHSensor();
   }
 
-// PINY LED
-  digitalWrite(LED_RED, 0);
-  digitalWrite(LED_GREEN, 0);
-  digitalWrite(LED_BLUE, 0);
-
-
   timeClient.begin();
 
-  red.initialize();
-  green.initialize();
-  blue.initialize();
+  initializeLight(lightPin);
 
   pinMode(motionSensorPin, INPUT); 
 
@@ -165,7 +157,6 @@ void setup() {
   bool res;
 
   // STATYCZNE IP
-//  wm.setSTAStaticIPConfig(IPAddress(192,168,0,170), IPAddress(192,168,0,1), IPAddress(255,255,255,0)); // KKK
  wm.setSTAStaticIPConfig(IPAddress(192,168,8,41), IPAddress(192,168,8,1), IPAddress(255,255,255,0)); // MMM
 
   res = wm.autoConnect("NikThinq_LED",""); // password protected ap
@@ -196,7 +187,7 @@ void setup() {
 void loop() {
   websocketHandler();
   webServerHandler();
-  csgoHandle();
+  // csgoHandle();
   offTimerHandler();
   EEPROMHandler();
   
@@ -218,7 +209,7 @@ void loop() {
         lightSensor = true;
       }
     }
-    refreshlightStatus();
+    // refreshlightStatus();
     // zapalanie ledow wg czujnika ruchu
     if(autoMode && !ledsOn && (checkLightSensorInAutoMode ? !lightSensor : true)){
       Serial.println(timeClient.getHours());
@@ -265,75 +256,4 @@ void loop() {
     blynkHandler();
   // ArduinoOTA.handle();
 
-  red.handler();
-  green.handler();
-  blue.handler();
-
-  if(sMode==FADE){
-    if(millis() > nextFadeTime + fadeDuration){
-      
-      switch(step){
-        case 1:
-          red.brightnessTransition(fadeBrightness,fadeDuration,true);
-          green.brightnessTransition(fadeBrightness,fadeDuration,true);
-          blue.brightnessTransition(0,fadeDuration,true);
-          step++;
-          break;
-        case 2:
-          red.brightnessTransition(0,fadeDuration,true);
-          green.brightnessTransition(fadeBrightness,fadeDuration,true);
-          blue.brightnessTransition(0,fadeDuration,true);
-          step++;
-          break;
-        case 3:
-          red.brightnessTransition(0,fadeDuration,true);
-          green.brightnessTransition(fadeBrightness,fadeDuration,true);
-          blue.brightnessTransition(fadeBrightness,fadeDuration,true);
-          step++;
-          break;
-        case 4:
-          red.brightnessTransition(0,fadeDuration,true);
-          green.brightnessTransition(0,fadeDuration,true);
-          blue.brightnessTransition(fadeBrightness,fadeDuration,true);
-          step++;
-          break;
-        case 5:
-          red.brightnessTransition(fadeBrightness,fadeDuration,true);
-          green.brightnessTransition(0,fadeDuration,true);
-          blue.brightnessTransition(fadeBrightness,fadeDuration,true);
-          step++;
-          break;
-        default:
-          red.brightnessTransition(fadeBrightness,fadeDuration,true);
-          green.brightnessTransition(0,fadeDuration,true);
-          blue.brightnessTransition(0,fadeDuration,true);
-          step = 1;
-          break;
-      }
-      nextFadeTime = millis();
-    }
-  }else if(sMode==STROBE){
-    if(millis() > (nextFadeTime + (step==1 ? 20 : 60))){
-      
-      switch(step){
-        case 1:
-          red.brightnessSet(red.getLastBrightness(),false,false);
-          green.brightnessSet(green.getLastBrightness(),false,false);
-          blue.brightnessSet(blue.getLastBrightness(),false,false);
-          step++;
-          break;
-        default:
-          red.brightnessSet(0,false,false);
-          green.brightnessSet(0,false,false);
-          blue.brightnessSet(0,false,false);
-          step = 1;
-          break;
-      }
-      nextFadeTime = millis();
-    }
-  }else if(sMode==BREATHING){
-    red.breathingHandler();
-    green.breathingHandler();
-    blue.breathingHandler();
-  }
 }

@@ -10,7 +10,7 @@ void refreshlightStatus(){
 }
 
 void generateStateString(){
-refreshlightStatus();
+// refreshlightStatus();
   String newState = "";
   newState += "{\"dhtSensor\":{\"humidity\":";
   newState += getHumidity();
