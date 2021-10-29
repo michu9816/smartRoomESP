@@ -27,3 +27,8 @@ void setColor(int redColor, int greenColor, int blueColor){
   green.brightnessSet(greenColor);
   blue.brightnessSet(blueColor);
 };
+void setColorTransition(int redColor, int greenColor, int blueColor){
+  red.brightnessTransition(redColor,50,false);
+  green.brightnessTransition(greenColor,50,false);
+  blue.brightnessTransition(blueColor,50,false);
+};

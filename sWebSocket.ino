@@ -137,6 +137,10 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
                       blue.setBreathFrequency(frequency);
                     }
                   }
+                }else if(doc.containsKey("transition")){
+                  String pay = doc["transition"];
+                  uint32_t rgb = (uint32_t) strtol((const char *) &pay[1], NULL, 16);
+                  setColorTransition(((rgb >> 16) & 0xFF), ((rgb >> 8) & 0xFF), ((rgb >> 0) & 0xFF));
                 }
               }
             }

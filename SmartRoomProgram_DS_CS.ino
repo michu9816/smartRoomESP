@@ -1,17 +1,19 @@
 
 #include <Arduino.h>
-#include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
-#include <WiFiUdp.h>
 #include <Hash.h>
 #include <ESP8266WebServer.h>
 //#include <ArduinoOTA.h>
 #include <NTPClient.h>
+#include <ESP8266WiFi.h>
+#include <WiFiUdp.h>
 #include <ArduinoJson.h>
 #include <SPI.h>
 #include <WiFiManager.h> // https://github.com/tzapu/WiFiManager
 #include <ElegantOTA.h>
 #include "Dimmer.h"
+
+extern void textAll(String name);
 
 enum shineMode{
   STABLE,
@@ -77,7 +79,7 @@ const long utcOffsetInSeconds = 3600;
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
+NTPClient timeClient(ntpUDP, "pool.ntp.org");
 
 
 // USTAWIENIA LEDÓW
@@ -123,9 +125,13 @@ int secDHTDelay = 20;
 
 bool isScheduledDay(){
   Serial.println("Sprawdzam czy dzisiaj jest harmonogramowany / nowy");
+  textAll("Sprawdzanie czy dzien harmonogramowy");
   if(scheduledDays[timeClient.getDay()]){
+    textAll("Otóż tak");
     Serial.println("Ano jest");
     return true;
+  }else{
+    textAll("Ni hu hu");
   }
   return false;
 }
@@ -150,7 +156,6 @@ void setup() {
   digitalWrite(LED_BLUE, 0);
 
 
-  timeClient.begin();
 
   red.initialize();
   green.initialize();
@@ -166,7 +171,7 @@ void setup() {
 
   // STATYCZNE IP
 //  wm.setSTAStaticIPConfig(IPAddress(192,168,0,170), IPAddress(192,168,0,1), IPAddress(255,255,255,0)); // KKK
- wm.setSTAStaticIPConfig(IPAddress(192,168,8,41), IPAddress(192,168,8,1), IPAddress(255,255,255,0)); // MMM
+ wm.setSTAStaticIPConfig(IPAddress(192,168,8,41), IPAddress(192,168,8,1), IPAddress(255,255,255,0), IPAddress(8,8,8,8)); // MMM
 
   res = wm.autoConnect("NikThinq_LED",""); // password protected ap
 
@@ -191,6 +196,8 @@ void setup() {
   EEPROMInitialize();
 
   loadEPROMValues();
+  timeClient.begin();
+  timeClient.setTimeOffset(3600);
 }
 
 void loop() {
@@ -200,7 +207,7 @@ void loop() {
   offTimerHandler();
   EEPROMHandler();
   
-  if(millis() > lastRequest + (secDelay * 1000) && !useCSData){
+  if(millis() > (lastRequest + (secDelay * 1000)) && !useCSData){
 
     if(checkMotionSensor){
       if(digitalRead(motionSensorPin)){ // ODPYTYWANIE CZUJNIKA RUCHU
@@ -228,7 +235,11 @@ void loop() {
       if((isScheduledDay() && timeClient.getHours() == turnOnHour && timeClient.getMinutes() == turnOnMinute)){
       // if(motion || (isScheduledDay() && timeClient.getHours() == 18 && timeClient.getMinutes() == 17)){
         Serial.println("Włączono pasek LED");
-        fadeIn();
+        
+    textAll("Włączam ledzika");
+        red.fadeIn();
+        green.fadeIn();
+        blue.fadeIn();
       }
 
     }else if(autoMode && ledsOn){
@@ -239,7 +250,9 @@ void loop() {
       if((isScheduledDay() && timeClient.getHours() == turnOffHour && timeClient.getMinutes() == turnOffMinute)){
       // if((lastMotion != 0 && (lastMotion + turnOffDelay*1000 > millis())) || (isScheduledDay() && timeClient.getHours() == 18 && timeClient.getMinutes() == 18)){
         Serial.println("Wyłączono pasek LED");
-        fadeOut();
+        red.fadeOut();
+        green.fadeOut();
+        blue.fadeOut();
         lastMotion = 0;
       }
     }else{
@@ -254,7 +267,7 @@ void loop() {
   if(millis() > lastTimeUpdate + 30000){
     lastTimeUpdate = millis();
     timeClient.update();
-  }
+    }
 
   // if(millis() > lastDHTRequest + (secDHTDelay * 1000) && readTemperature){
   //   readTHSensor();
@@ -269,50 +282,50 @@ void loop() {
   green.handler();
   blue.handler();
 
-  if(sMode==FADE){
+  if(sMode==FADE && ledsOn){
     if(millis() > nextFadeTime + fadeDuration){
       
       switch(step){
         case 1:
           red.brightnessTransition(fadeBrightness,fadeDuration,true);
           green.brightnessTransition(fadeBrightness,fadeDuration,true);
-          blue.brightnessTransition(0,fadeDuration,true);
+          blue.brightnessTransition(25,fadeDuration,true);
           step++;
           break;
         case 2:
-          red.brightnessTransition(0,fadeDuration,true);
+          red.brightnessTransition(25,fadeDuration,true);
           green.brightnessTransition(fadeBrightness,fadeDuration,true);
-          blue.brightnessTransition(0,fadeDuration,true);
+          blue.brightnessTransition(25,fadeDuration,true);
           step++;
           break;
         case 3:
-          red.brightnessTransition(0,fadeDuration,true);
+          red.brightnessTransition(25,fadeDuration,true);
           green.brightnessTransition(fadeBrightness,fadeDuration,true);
           blue.brightnessTransition(fadeBrightness,fadeDuration,true);
           step++;
           break;
         case 4:
-          red.brightnessTransition(0,fadeDuration,true);
-          green.brightnessTransition(0,fadeDuration,true);
+          red.brightnessTransition(25,fadeDuration,true);
+          green.brightnessTransition(25,fadeDuration,true);
           blue.brightnessTransition(fadeBrightness,fadeDuration,true);
           step++;
           break;
         case 5:
           red.brightnessTransition(fadeBrightness,fadeDuration,true);
-          green.brightnessTransition(0,fadeDuration,true);
+          green.brightnessTransition(25,fadeDuration,true);
           blue.brightnessTransition(fadeBrightness,fadeDuration,true);
           step++;
           break;
         default:
           red.brightnessTransition(fadeBrightness,fadeDuration,true);
-          green.brightnessTransition(0,fadeDuration,true);
-          blue.brightnessTransition(0,fadeDuration,true);
+          green.brightnessTransition(25,fadeDuration,true);
+          blue.brightnessTransition(25,fadeDuration,true);
           step = 1;
           break;
       }
       nextFadeTime = millis();
     }
-  }else if(sMode==STROBE){
+  }else if(sMode==STROBE && ledsOn){
     if(millis() > (nextFadeTime + (step==1 ? 20 : 60))){
       
       switch(step){
@@ -331,7 +344,7 @@ void loop() {
       }
       nextFadeTime = millis();
     }
-  }else if(sMode==BREATHING){
+  }else if(sMode==BREATHING && ledsOn){
     red.breathingHandler();
     green.breathingHandler();
     blue.breathingHandler();

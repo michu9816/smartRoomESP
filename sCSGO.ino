@@ -9,17 +9,16 @@ int mvp = 0;
 int csgoLastRed;
 int csgoLastGreen;
 int csgoLastBlue;
-bool blinkedRed = false;
+bool blinkedRed = true;
+String matchRoundPhase;
+String playerTeam;
 
 extern bool useCSData;
-extern int lastRed;
-extern int lastGreen;
-extern int lastBlue;
 
 void csgoHandler(String msg){
     Serial.println("Dostalem informacje z serwera");
-        // textAll("Informacja z CS");
-        // Serial.println(msg);
+        textAll("Informacja z CS");
+        Serial.println(msg);
         DynamicJsonDocument postData(2048);
         DeserializationError error = deserializeJson(postData, msg);
         textAll(msg);
@@ -34,39 +33,31 @@ void csgoHandler(String msg){
             health = postData["player"]["state"]["health"];
             // textAll("Dane z cs");
             String roundPhase = postData["round"]["phase"];
-            
+            matchRoundPhase = roundPhase;
+            String team = postData["player"]["team"];
+            playerTeam = team;
             String newMvps = postData["player"]["match_stats"];
             int newMvp = newMvps.toInt();
-            if(roundPhase == "live"){
-                // changeColor(70,70,70);
-                Serial.println("Runda LIVE!");
-            }else if(roundPhase == "freezetime"){
+            if(roundPhase == "freezetime"){
                 mvp = newMvp;
                 String playerTeam = postData["player"]["team"];
                 if(playerTeam=="CT"){
-                    // changeColor(6,48,48);
+                    setColorTransition(6,48,48);
                 }else if(playerTeam=="T"){
-                    // changeColor(48,6,6);
+                    setColorTransition(48,48,6);
                 }
               Serial.println("Oczekiwanie na start rundy");
             }else if(roundPhase == "over"){
                 String winningTeam = postData["round"]["win_team"];
                 if(newMvp > mvp){
-                    // changeColor(48,48,0);
+                    setColorTransition(48,48,0);
                 }else if(winningTeam=="CT"){
-                    // changeColor(0,32,64);
+                    setColorTransition(0,32,64);
                 }else if(winningTeam=="T"){
-                    // changeColor(48,0,0);
+                    setColorTransition(64,32,0);
                 }
             }
         }
-}
-
-void changeColor(int red, int green, int blue){
-    // transitionToColor(red,green,blue,false);
-    csgoLastBlue = blue;
-    csgoLastGreen = green;
-    csgoLastRed = red;
 }
 
 void csgoHandle(){
@@ -77,12 +68,23 @@ void csgoHandle(){
         loadColorBeforeCS();
         lastDataRecieved = 0;
     }else{
-        if(health<20){
-            if(blinkedRed && (lastBlinkTime > millis() + 250)){
-                loadColorBeforeCS();
-            }else if(lastBlinkTime > millis() + 750){
-                // setColor(75,0,0);
-                lastBlinkTime = millis();
+        if(matchRoundPhase=="live"){
+            if(health==0){
+                setColorTransition(30,30,30);
+            }else if(health<20){
+                if(blinkedRed && (lastBlinkTime < millis() + 250)){
+                    // loadColorBeforeCS();
+                    setColor(75,255,0);
+                }else if(lastBlinkTime < millis() + 750){
+                    setColor(75,0,0);
+                    lastBlinkTime = millis();
+                }
+            }else{
+                if(playerTeam=="CT"){
+                    setColorTransition(70,200,200);
+                }else if(playerTeam=="T"){
+                    setColorTransition(200,200,70);
+                }
             }
         }
     }
@@ -90,11 +92,11 @@ void csgoHandle(){
 
 
 void loadColorBeforeCS(){
-//   transitionToColor(savedRed,savedGreen,savedBlue);
+  setColorTransition(savedRed,savedGreen,savedBlue);
 }
 
 void saveColorBeforeCS(){
-  savedRed = lastRed;
-  savedGreen = lastGreen;
-  savedBlue = lastBlue;
+  savedRed = red.getLastBrightness();
+  savedGreen = green.getLastBrightness();
+  savedBlue = blue.getLastBrightness();
 }
