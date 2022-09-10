@@ -40,4 +40,6 @@ void readTHSensor(){
         temperature = 0;
       badReadness = 0;
     }
+    Serial.print("Reading temperature ");
+    Serial.println(newTemperature);
 }
