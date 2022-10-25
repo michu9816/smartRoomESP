@@ -9,7 +9,7 @@
 
 #define APP_KEY "5d87ab1a-79c2-4f4b-84f6-34247cd9b86e"                                         // Should look like "de0bxxxx-1x3x-4x3x-ax2x-5dabxxxxxxxx"
 #define APP_SECRET "fe7b2f7d-8522-4e4b-8c70-e14f6ea0c7d0-65d91a5f-b13f-4893-96a8-969cc21f0b38" // Should look like "5f36xxxx-x3x7-4x3x-xexe-e86724a9xxxx-4c4axxxx-3x3x-x5xe-x9x3-333d65xxxxxx"
-#define LIGHT_ID "6357f74e333d12dd2adabea5"                                                    // Should look like "5dc1564130xxxxxxxxxxxxxx"
+#define LIGHT_ID "6357f8cdb8a7fefbd626399e"                                                    // Should look like "5dc1564130xxxxxxxxxxxxxx"
 
 // define array of supported color temperatures
 int colorTemperatureArray[] = {2200, 2700, 4000, 5500, 7000};

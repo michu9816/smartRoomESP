@@ -39,25 +39,25 @@ int checkLightSensorEPROM = 6;
 
 // DEFINICJE PINÓW
 
-#define LED_RED 15
-#define LED_GREEN 13
+#define LED_RED 13
+#define LED_GREEN 14
 #define LED_BLUE 12
 
 #define DHTPIN 5 // Digital pin connected to the DHT sensor
 
-int motionSensorPin = 15;
+int motionSensorPin = 4;
 int lightSensorSensorPin = 4;
 
 // DEFINICJE KOLORÓW
 
-Dimmer red(15);
-Dimmer green(13);
+Dimmer red(13);
+Dimmer green(14);
 Dimmer blue(12);
 
 // USTAWIENIA ODPYTYWANIA
 
 bool useBlynk = false;
-bool readTemperature = true;    // CZY ODCZYTYWAĆ STAN CZUJNIKA TEMP.
+bool readTemperature = false;   // CZY ODCZYTYWAĆ STAN CZUJNIKA TEMP.
 bool checkMotionSensor = false; // CZY ODCZYTYWAĆ STAN CZUJNIKA RUCHU
 bool checkLightSensor = false;  // CZY ODCZYTYWAĆ STAN CZUJNIKA ŚWIATŁA
 
