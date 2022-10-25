@@ -195,6 +195,9 @@ void setup()
   initializeWebsocket();
   EEPROMInitialize();
 
+  setupColorTemperatureIndex(); // setup our helper map
+  setupSinricPro();
+
   loadEPROMValues();
   timeClient.begin();
   timeClient.setTimeOffset(3600);
@@ -207,6 +210,7 @@ void loop()
   csgoHandle();
   offTimerHandler();
   EEPROMHandler();
+  sinricHandler();
 
   if (millis() > (lastRequest + (secDelay * 1000)) && !useCSData)
   {
