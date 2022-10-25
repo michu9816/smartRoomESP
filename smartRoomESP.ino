@@ -1,5 +1,6 @@
-
 #include <Arduino.h>
+#include <ESP8266mDNS.h>
+#include <Hash.h>
 #include <ESP8266WebServer.h>
 //#include <ArduinoOTA.h>
 #include <NTPClient.h>
@@ -122,16 +123,16 @@ int secDHTDelay = 20;
 bool isScheduledDay()
 {
   Serial.println("Sprawdzam czy dzisiaj jest harmonogramowany / nowy");
-  textAll("Sprawdzanie czy dzien harmonogramowy");
+  // textAll("Sprawdzanie czy dzien harmonogramowy");
   if (scheduledDays[timeClient.getDay()])
   {
-    textAll("Otóż tak");
+    // textAll("Otóż tak");
     Serial.println("Ano jest");
     return true;
   }
   else
   {
-    textAll("Ni hu hu");
+    // textAll("Ni hu hu");
   }
   return false;
 }
@@ -252,7 +253,7 @@ void loop()
         // if(motion || (isScheduledDay() && timeClient.getHours() == 18 && timeClient.getMinutes() == 17)){
         Serial.println("Włączono pasek LED");
 
-        textAll("Włączam ledzika");
+        // textAll("Włączam ledzika");
         red.fadeIn();
         green.fadeIn();
         blue.fadeIn();
