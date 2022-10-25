@@ -171,7 +171,7 @@ void setup()
 
   // STATYCZNE IP
   //  wm.setSTAStaticIPConfig(IPAddress(192,168,0,170), IPAddress(192,168,0,1), IPAddress(255,255,255,0)); // KKK
-  wm.setSTAStaticIPConfig(IPAddress(192, 168, 8, 41), IPAddress(192, 168, 8, 1), IPAddress(255, 255, 255, 0), IPAddress(8, 8, 8, 8)); // MMM
+  wm.setSTAStaticIPConfig(IPAddress(192, 168, 8, 44), IPAddress(192, 168, 8, 1), IPAddress(255, 255, 255, 0), IPAddress(8, 8, 8, 8)); // MMM
 
   res = wm.autoConnect("NikThinq_LED", ""); // password protected ap
 

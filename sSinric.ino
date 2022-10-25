@@ -7,9 +7,9 @@
 #include "SinricPro.h"
 #include "SinricProLight.h"
 
-#define APP_KEY "7f3c4343-9d39-4c52-8f7e-9c7b4554eac7"                                         // Should look like "de0bxxxx-1x3x-4x3x-ax2x-5dabxxxxxxxx"
-#define APP_SECRET "3b21a884-90e2-4031-8b8b-ed15183584d6-0b81378e-f179-4fd2-9868-45d0751ed83b" // Should look like "5f36xxxx-x3x7-4x3x-xexe-e86724a9xxxx-4c4axxxx-3x3x-x5xe-x9x3-333d65xxxxxx"
-#define LIGHT_ID "631c40a036b44d06d4b7ce20"                                                    // Should look like "5dc1564130xxxxxxxxxxxxxx"
+#define APP_KEY "5d87ab1a-79c2-4f4b-84f6-34247cd9b86e"                                         // Should look like "de0bxxxx-1x3x-4x3x-ax2x-5dabxxxxxxxx"
+#define APP_SECRET "fe7b2f7d-8522-4e4b-8c70-e14f6ea0c7d0-65d91a5f-b13f-4893-96a8-969cc21f0b38" // Should look like "5f36xxxx-x3x7-4x3x-xexe-e86724a9xxxx-4c4axxxx-3x3x-x5xe-x9x3-333d65xxxxxx"
+#define LIGHT_ID "6357f74e333d12dd2adabea5"                                                    // Should look like "5dc1564130xxxxxxxxxxxxxx"
 
 // define array of supported color temperatures
 int colorTemperatureArray[] = {2200, 2700, 4000, 5500, 7000};
