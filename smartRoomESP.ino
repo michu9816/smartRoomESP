@@ -118,6 +118,10 @@ long lastDHTRequest = 0;
 int secDelay = 20;
 int secDHTDelay = 20;
 
+// IR
+
+bool useIR = true;
+
 // FUNKCJE DLA LEDOW
 
 bool isScheduledDay()
@@ -145,6 +149,8 @@ void setup()
   // BLYNK
   if (useBlynk)
     initializeBlynk();
+  if (useIR)
+    initializeIR();
 
   if (readTemperature)
   {
