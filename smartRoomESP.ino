@@ -219,6 +219,11 @@ void loop()
   EEPROMHandler();
   sinricHandler();
 
+  if (useIR)
+  {
+    IRHandler();
+  }
+
   if (millis() > (lastRequest + (secDelay * 1000)) && !useCSData)
   {
 

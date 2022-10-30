@@ -1,7 +1,12 @@
-#include <IRremote.h> //including infrared remote header file
+#include <IRremoteESP8266.h>
+#include <IRrecv.h>
+#include <IRutils.h>
 
-int RECV_PIN = 2; // the pin where you connect the output pin of IR sensor
-IRrecv irrecv(RECV_PIN);
+const uint16_t kRecvPin = 2;
+unsigned long key_value = 0;
+
+IRrecv irrecv(kRecvPin);
+
 decode_results results;
 
 void initializeIR()
@@ -11,10 +16,12 @@ void initializeIR()
 
 void IRHandler()
 {
-  if (irrecv.decode(&results)) // Returns 0 if no data ready, 1 if data ready.
+  if (irrecv.decode(&results))
   {
-    int value = results.value;
-    textAll(String(value));
+    // print() & println() can't handle printing long longs. (uint64_t)
+    serialPrintUint64(results.value, HEX);
+    textAll("New signal");
+    textAll(String(results.value));
     irrecv.resume(); // Restart the ISR state machine and Receive the next value
   }
 }
