@@ -6,10 +6,12 @@
 
 #include "SinricPro.h"
 #include "SinricProLight.h"
+#include "SinricProTemperaturesensor.h"
 
 #define APP_KEY "7f3c4343-9d39-4c52-8f7e-9c7b4554eac7"                                         // Should look like "de0bxxxx-1x3x-4x3x-ax2x-5dabxxxxxxxx"
 #define APP_SECRET "3b21a884-90e2-4031-8b8b-ed15183584d6-0b81378e-f179-4fd2-9868-45d0751ed83b" // Should look like "5f36xxxx-x3x7-4x3x-xexe-e86724a9xxxx-4c4axxxx-3x3x-x5xe-x9x3-333d65xxxxxx"
 #define LIGHT_ID "631c40a036b44d06d4b7ce20"                                                    // Should look like "5dc1564130xxxxxxxxxxxxxx"
+#define TEMP_SENSOR_ID "63653643b8a7fefbd6317956"
 
 // define array of supported color temperatures
 int colorTemperatureArray[] = {2200, 2700, 4000, 5500, 7000};
@@ -123,6 +125,20 @@ bool onDecreaseColorTemperature(const String &deviceId, int &colorTemperature)
     Serial.printf("Device %s decreased color temperature to %d\r\n", deviceId.c_str(), device_state.colorTemperature);
     colorTemperature = device_state.colorTemperature; // return current color temperature value
     return true;
+}
+
+void setTemperature(float temperature, float humidity)
+{
+    SinricProTemperaturesensor &mySensor = SinricPro[TEMP_SENSOR_ID];    // get temperaturesensor device
+    bool success = mySensor.sendTemperatureEvent(temperature, humidity); // send event
+    if (success)
+    { // if event was sent successfuly, print temperature and humidity to serial
+        Serial.printf("Temperature: %2.1f Celsius\tHumidity: %2.1f%%\r\n", temperature, humidity);
+    }
+    else
+    { // if sending event failed, print error message
+        Serial.printf("Something went wrong...could not send Event to server!\r\n");
+    }
 }
 
 void setupSinricPro()
