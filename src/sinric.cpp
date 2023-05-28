@@ -1,25 +1,31 @@
-#ifdef ENABLE_DEBUG
-#define DEBUG_ESP_PORT Serial
-#define NODEBUG_WEBSOCKETS
-#define NDEBUG
-#endif
-
 #include "SinricPro.h"
 #include "SinricProLight.h"
 #include "SinricProTemperaturesensor.h"
 
-#define APP_KEY "7f3c4343-9d39-4c52-8f7e-9c7b4554eac7"                                         // Should look like "de0bxxxx-1x3x-4x3x-ax2x-5dabxxxxxxxx"
-#define APP_SECRET "3b21a884-90e2-4031-8b8b-ed15183584d6-0b81378e-f179-4fd2-9868-45d0751ed83b" // Should look like "5f36xxxx-x3x7-4x3x-xexe-e86724a9xxxx-4c4axxxx-3x3x-x5xe-x9x3-333d65xxxxxx"
-#define LIGHT_ID "631c40a036b44d06d4b7ce20"                                                    // Should look like "5dc1564130xxxxxxxxxxxxxx"
-#define TEMP_SENSOR_ID "63653643b8a7fefbd6317956"
+#include <sinric.h>
+#include <rgbDimmer.h>
 
 // define array of supported color temperatures
 int colorTemperatureArray[] = {2200, 2700, 4000, 5500, 7000};
 int max_color_temperatures = sizeof(colorTemperatureArray) / sizeof(colorTemperatureArray[0]); // calculates how many elements are stored in colorTemperature array
 
+// we use a struct to store all states and values for our light
+struct
+{
+    bool powerState = false;
+    int brightness = 0;
+    struct
+    {
+        byte r = 0;
+        byte g = 0;
+        byte b = 0;
+    } color;
+    int colorTemperature = colorTemperatureArray[0]; // set colorTemperature to first element in colorTemperatureArray array
+} device_state;
+
+bool deviceIsOn;
 // a map used to convert a given color temperature into color temperature index (used for colorTemperatureArray)
 std::map<int, int> colorTemperatureIndex;
-
 // initializes the map above with color temperatures and index values
 // so that the map can be used to do a reverse search like
 // int index = colorTemperateIndex[4000]; <- will result in index == 2
@@ -32,20 +38,6 @@ void setupColorTemperatureIndex()
         Serial.printf("colorTemperatureIndex[%i] = %i\r\n", colorTemperatureArray[i], colorTemperatureIndex[colorTemperatureArray[i]]);
     }
 }
-
-// we use a struct to store all states and values for our light
-struct
-{
-    bool powerState = ledsOn;
-    int brightness = 0;
-    struct
-    {
-        byte r = 0;
-        byte g = 0;
-        byte b = 0;
-    } color;
-    int colorTemperature = colorTemperatureArray[0]; // set colorTemperature to first element in colorTemperatureArray array
-} device_state;
 
 bool onPowerState(const String &deviceId, bool &state)
 {
@@ -143,6 +135,7 @@ void setTemperature(float temperature, float humidity)
 
 void setupSinricPro()
 {
+    setupColorTemperatureIndex(); // setup our helper map
     // get a new Light device from SinricPro
     SinricProLight &myLight = SinricPro[LIGHT_ID];
 
